@@ -113,6 +113,7 @@ details.guide summary { font: 800 15px var(--font-head); cursor: pointer; paddin
 .guide dt { min-width: 0; } .guide dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .guide .small { grid-column: 1 / -1; }
 #tt .scroll { margin: 6px 0 4px; -webkit-overflow-scrolling: touch; }
+.pmap { display: inline-block; margin-top: 4px; font-size: 13px; font-weight: 700; color: var(--green-ink); text-decoration: underline; }
 .sc-hint { display: none; margin: 4px 0 0; }
 @media (max-width: 700px) { .sc-hint { display: block; } }
 .ttm { border-collapse: collapse; font-size: 13px; width: auto; min-width: 0; }
@@ -388,6 +389,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
         var st = stayOf(it);
         var meta = '<span class="pmeta">' + B('滞在の めやす <b>' + st + '分</b>' + (it.src ? '' : '(仮)'), '建議停留 <b>' + st + ' 分鐘</b>' + (it.src ? '' : '（暫定）')) + '</span>';
         if (it.a) meta += '<span class="pmeta">' + B('道のり: ' + esc(it.a), '路程：' + esc(z.a || it.a)) + '</span>';
+        meta += '<a class="pmap" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('宮崎県 ' + it.n.replace(/\s*[\(（].*$/, '').replace(/でサーフィン$/, '').replace(/\s+/g, '')) + '">' + B('地図で 見る', '在地圖上查看') + '</a>';
         if (it.h) meta += '<span class="pmeta">' + B('営業: ' + esc(it.h), '營業：' + esc(z.h || it.h)) + '</span>';
         html += '<label class="place"><input type="checkbox" data-area="' + a.id + '" data-name="' + esc(it.n) + '">' +
           '<span><span class="pname">' + B(esc(it.n), esc(z.n)) + '</span><br><span class="pdesc"><span class="tag">' + B(esc(it.t), esc(ZH_TAG[it.t] || it.t)) + '</span>' + B(esc(it.d), esc(z.d)) + '</span>' + meta + '</span></label>';
