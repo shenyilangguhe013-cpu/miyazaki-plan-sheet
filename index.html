@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>宮崎エリア別プランシート</title>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@700;800&family=Noto+Sans+JP:wght@400;500;700&display=swap">
+<style>
+/* Layout: 上=旅行1日の時間わく(出発・もどる時刻と残り時間)。ステップ1=3エリアのカードから個数制限なしで選ぶ。ステップ2=移動の目安+時間が自動で出るプラン表。 */
+:root {
+  --bg: #f4f6f3;
+  --paper: #ffffff;
+  --ink: #1c2420;
+  --muted: #56615a;
+  --line: #cdd5cf;
+  --green: #3f9a2c;  --green-ink: #2b6f1d;  --green-tint: #e7f3e3;
+  --orange: #f07a1a; --orange-ink: #a64c00; --orange-tint: #fdeedd;
+  --blue: #2f78c4;   --blue-ink: #1d5a9a;   --blue-tint: #e3eefa;
+  --red: #d9302f;
+  --font-head: "M PLUS Rounded 1c", "Hiragino Maru Gothic ProN", "Noto Sans JP", sans-serif;
+  --font-body: "Noto Sans JP", "Hiragino Sans", "Yu Gothic", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #101512; --paper: #181f1a; --ink: #e8efe9; --muted: #a2afa5; --line: #3a463d;
+    --green: #78c966; --green-ink: #8fdc7d; --green-tint: #1f3320;
+    --orange: #ff9d52; --orange-ink: #ffb277; --orange-tint: #3a2512;
+    --blue: #6db0f0; --blue-ink: #8dc4f7; --blue-tint: #172a40; --red: #ff7a78;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #101512; --paper: #181f1a; --ink: #e8efe9; --muted: #a2afa5; --line: #3a463d;
+  --green: #78c966; --green-ink: #8fdc7d; --green-tint: #1f3320;
+  --orange: #ff9d52; --orange-ink: #ffb277; --orange-tint: #3a2512;
+  --blue: #6db0f0; --blue-ink: #8dc4f7; --blue-tint: #172a40; --red: #ff7a78;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body);
+  line-height: 1.65; font-size: 16px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 56px;
+}
+.wrap { max-width: 1040px; margin: 0 auto; }
+.paper { background: var(--paper); border: 1.5px solid var(--line); border-radius: 14px; padding: 26px clamp(14px, 3.5vw, 32px) 30px; }
+h1 { font: 800 clamp(26px, 5vw, 36px)/1.25 var(--font-head); margin: 0; text-wrap: balance; }
+h1 .g { color: var(--green-ink); } h1 .o { color: var(--orange-ink); }
+.sub { color: var(--muted); margin: 6px 0 0; font-size: 14.5px; }
+.team { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 18px 0 0; }
+.field { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.field label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.field input[type="text"] { font: 500 16px var(--font-body); color: var(--ink); background: transparent; border: 0; border-bottom: 2px solid var(--ink); padding: 6px 2px; min-height: 36px; border-radius: 0; }
+input:focus-visible, button:focus-visible, summary:focus-visible { outline: 3px solid var(--orange); outline-offset: 2px; }
+
+/* 旅行1日の時間わく */
+.day { margin-top: 20px; padding: 14px 16px 16px; border-radius: 12px; background: var(--orange-tint); }
+.day-top { display: flex; align-items: center; gap: 10px 16px; flex-wrap: wrap; }
+.day .lead { font: 800 16px var(--font-head); color: var(--orange-ink); }
+.day label { font-size: 13px; color: var(--muted); display: inline-flex; align-items: center; gap: 6px; }
+.day input[type="time"] { font: 700 17px var(--font-body); color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 8px; padding: 5px 8px; }
+.day .cond { font-size: 13px; color: var(--ink); margin-left: auto; }
+.meter { height: 16px; border-radius: 999px; background: var(--paper); border: 1.5px solid var(--line); overflow: hidden; margin: 12px 0 6px; }
+.meter > i { display: block; height: 100%; width: 0; background: var(--green); transition: width .25s; }
+.meter.over > i { background: var(--red); }
+.day-nums { display: flex; flex-wrap: wrap; gap: 6px 22px; font-size: 14px; font-variant-numeric: tabular-nums; }
+.day-nums b { font: 800 18px var(--font-head); }
+.day-nums .left b { color: var(--green-ink); }
+.day-nums .left.over b { color: var(--red); }
+
+.step { margin-top: 30px; padding-top: 22px; border-top: 1.5px dashed var(--line); }
+.step-head { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 10px; }
+.badge { font: 800 15px var(--font-head); background: var(--green-tint); color: var(--green-ink); border-radius: 999px; padding: 3px 14px; white-space: nowrap; }
+.badge.o { background: var(--orange-tint); color: var(--orange-ink); }
+h2 { font: 800 21px/1.3 var(--font-head); margin: 0; }
+.who { font-size: 13px; color: var(--muted); }
+.total { margin-left: auto; font: 800 15px var(--font-head); color: var(--green-ink); background: var(--green-tint); border-radius: 999px; padding: 3px 14px; }
+p { margin: 8px 0; }
+.hint { font-size: 14px; background: var(--orange-tint); border-radius: 8px; padding: 9px 12px; margin: 10px 0; }
+.hint b { color: var(--orange-ink); }
+
+/* エリア */
+.areas { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 12px; align-items: start; }
+.area { border-radius: 12px; padding: 14px 14px 10px; }
+.area.n { background: var(--green-tint); --a: var(--green-ink); }
+.area.c { background: var(--orange-tint); --a: var(--orange-ink); }
+.area.s { background: var(--blue-tint); --a: var(--blue-ink); }
+.area-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.area h3 { font: 800 20px var(--font-head); margin: 0; color: var(--a); }
+.cnt { font: 800 13px var(--font-head); color: var(--a); white-space: nowrap; }
+.cities { font-size: 13px; color: var(--muted); margin: 0 0 6px; }
+.city { font: 800 13px var(--font-head); color: var(--a); margin: 14px 0 4px; padding-bottom: 3px; border-bottom: 1.5px solid var(--a); }
+.place { display: flex; align-items: flex-start; gap: 10px; background: var(--paper); border: 1.5px solid transparent; border-radius: 9px; padding: 8px 10px; margin: 6px 0; cursor: pointer; }
+.place:hover { border-color: var(--line); }
+.place input { width: 20px; height: 20px; margin-top: 3px; flex: none; accent-color: var(--a); }
+.place.on { border-color: var(--a); }
+.pname { font-weight: 700; font-size: 15px; line-height: 1.4; }
+.pdesc { font-size: 13px; color: var(--muted); line-height: 1.5; }
+.pmeta { display: block; font-size: 12px; color: var(--muted); line-height: 1.5; margin-top: 2px; }
+.pmeta b { color: var(--a); font-weight: 700; }
+.tag { display: inline-block; font-size: 11.5px; font-weight: 700; border-radius: 5px; padding: 0 6px; margin-right: 6px; background: var(--bg); color: var(--a); vertical-align: 1px; }
+.note-mtn { font-size: 12.5px; color: var(--muted); margin: 2px 0 0; }
+
+/* 移動の目安 */
+details.guide { border: 1.5px solid var(--line); border-radius: 10px; padding: 4px 14px 12px; margin: 12px 0; }
+details.guide summary { font: 800 15px var(--font-head); cursor: pointer; padding: 8px 0; }
+.guide-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 28px; }
+.guide h4 { font: 800 13px var(--font-head); color: var(--muted); margin: 8px 0 2px; }
+.guide dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; font-size: 14px; }
+.guide dt { min-width: 0; } .guide dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.guide .small { grid-column: 1 / -1; }
+
+/* プラン表 */
+.scroll { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 760px; margin-top: 8px; }
+th, td { border: 1.5px solid var(--line); padding: 4px 6px; text-align: left; vertical-align: middle; }
+thead th { background: var(--green-tint); color: var(--green-ink); font-size: 13px; padding: 8px 8px; white-space: nowrap; }
+td input { width: 100%; font: 500 15px var(--font-body); color: var(--ink); background: transparent; border: 0; padding: 8px 6px; min-height: 44px; }
+td input[type="number"] { text-align: right; }
+td.num { width: 5.8em; } td.time { width: 4.6em; text-align: center; font: 800 16px var(--font-head); font-variant-numeric: tabular-nums; }
+td.rm { width: 3em; text-align: center; }
+.rm button { font: 700 16px var(--font-body); color: var(--muted); background: transparent; border: 0; cursor: pointer; padding: 6px 8px; border-radius: 6px; }
+tr.fixed td, tr.fixed th { background: var(--orange-tint); }
+tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size: 14px; padding: 8px 10px; }
+.warn { display: block; font-size: 12px; color: var(--red); padding: 0 6px 4px; }
+.info { display: block; font-size: 12px; color: var(--muted); padding: 0 6px 4px; }
+.row-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; align-items: center; }
+.btn { font: 700 15px var(--font-body); color: var(--ink); background: transparent; border: 1.5px solid var(--line); border-radius: 999px; padding: 8px 18px; cursor: pointer; }
+.small { font-size: 13px; color: var(--muted); }
+.say { background: var(--green-tint); border-radius: 10px; padding: 12px 16px; margin: 10px 0; }
+.say .lead { font-size: 13px; font-weight: 700; color: var(--green-ink); }
+.say p { margin: 4px 0; }
+.u { display: inline-block; min-width: 7.5em; border-bottom: 2px solid var(--ink); height: 1.1em; vertical-align: -2px; margin: 0 2px; }
+.map { display: flex; align-items: center; gap: 12px; }
+.map input { width: 22px; height: 22px; accent-color: var(--green); flex: none; }
+.submit-box { background: var(--blue-tint); border-radius: 12px; padding: 14px 16px; margin-top: 10px; }
+.btn.primary { display: inline-block; text-decoration: none; background: var(--blue-ink); color: var(--paper); border-color: var(--blue-ink); font-size: 17px; padding: 12px 28px; }
+.btn.primary:disabled { opacity: .6; }
+#sub-status { font-weight: 700; margin: 10px 0 0; min-height: 1.5em; }
+#sub-status.ok { color: var(--green-ink); } #sub-status.ng { color: var(--red); }
+#sub-code { width: 100%; height: 5.5em; font: 12px/1.4 monospace; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 8px; padding: 8px; margin-top: 6px; }
+.rep { font-weight: 700; color: var(--blue-ink); }
+
+@media (max-width: 900px) { .areas { grid-template-columns: 1fr; } .guide-grid { grid-template-columns: 1fr; } }
+@media (max-width: 640px) { .team { grid-template-columns: 1fr; } .day .cond { margin-left: 0; } }
+@media print { .row-actions .btn { display: none; } body { padding: 0; background: #fff; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <main class="paper">
+    <h1><span class="g">宮崎</span>の どこへ 行く?<span class="o"> 1日プランを 作ろう</span></h1>
+    <p class="sub">県北・県央・県南から、行きたい 場所を えらびます。えらぶ 数に 制限は ありません。ただし、旅行の 1日には 時間の 限りが あります。時間が ゆるす かぎり えらんで、プランに しましょう。</p>
+
+    <section class="day" aria-label="旅行1日の時間わく">
+      <div class="day-top">
+        <span class="lead">旅行1日の 時間わく</span>
+        <label for="t-start">宮崎空港を 出る<input id="t-start" type="time" value="09:00"></label>
+        <label for="t-end">もどる 時刻<input id="t-end" type="time" value="18:00"></label>
+        <span class="cond">レンタカーで まわる 前提 ・ 宮崎空港が スタート</span>
+      </div>
+      <div class="meter" id="meter" role="img" aria-label="使った 時間"><i id="meter-bar"></i></div>
+      <div class="day-nums" aria-live="polite">
+        <span>全部で <b id="n-avail">9時間0分</b></span>
+        <span>つかった <b id="n-used">0分</b></span>
+        <span class="left" id="n-left-wrap">のこり <b id="n-left">9時間0分</b></span>
+      </div>
+    </section>
+
+    <section class="step" aria-labelledby="h-step1">
+      <div class="step-head">
+        <span class="badge">ステップ1</span><h2 id="h-step1">行きたい ところに チェック</h2>
+        <span class="who">いくつでも</span><span class="total" id="total" aria-live="polite">えらんだ 数 0</span>
+      </div>
+      <div class="hint"><b>ヒント</b> 県北・県央・県南は 離れています。「滞在の めやす」と 「道のり」を 見ながら、1日に 入る 数を 考えましょう。(「仮」と 書いた 時間は 私たちの 仮の めやすです。自分で 直して OK)</div>
+      <div class="areas" id="areas"></div>
+    </section>
+
+    <section class="step" aria-labelledby="h-step2">
+      <div class="step-head">
+        <span class="badge o">ステップ2</span><h2 id="h-step2">1日の プランを 作ろう</h2>
+        <span class="who">時間の じゅんに ならべる</span>
+      </div>
+
+      <details class="guide" open>
+        <summary>車での 移動時間の めやす(宮崎県観光協会の 情報)</summary>
+        <div class="guide-grid">
+          <div>
+            <h4>宮崎空港から</h4>
+            <dl>
+              <dt>青島</dt><dd>約15分</dd>
+              <dt>鵜戸神宮</dt><dd>約45分</dd>
+              <dt>西都原古墳群</dt><dd>約1時間</dd>
+              <dt>日向(願いが叶うクルスの海)</dt><dd>約1時間20分</dd>
+              <dt>都井岬</dt><dd>約1時間30分</dd>
+              <dt>延岡(須美江)</dt><dd>約1時間50分</dd>
+              <dt>高千穂(道の駅青雲橋)</dt><dd>約2時間</dd>
+            </dl>
+          </div>
+          <div>
+            <h4>場所と 場所の あいだ</h4>
+            <dl>
+              <dt>クルスの海 → 馬ヶ背</dt><dd>約5分</dd>
+              <dt>馬ヶ背 → 道の駅とうごう</dt><dd>約35分</dd>
+              <dt>道の駅北浦 → 城山公園</dt><dd>約30分</dd>
+              <dt>道の駅青雲橋 → 天岩戸神社</dt><dd>約20分</dd>
+              <dt>天安河原 → 高千穂峡</dt><dd>約20分</dd>
+              <dt>サンメッセ日南 → 鵜戸神宮</dt><dd>約15分</dd>
+              <dt>鵜戸神宮 → 飫肥城下町</dt><dd>約30分</dd>
+              <dt>飫肥城下町 → 道の駅なんごう</dt><dd>約30分</dd>
+              <dt>道の駅なんごう → 幸島</dt><dd>約20分</dd>
+              <dt>幸島 → 都井岬</dt><dd>約25分</dd>
+            </dl>
+          </div>
+          <p class="small">高速道路を つかう 場合が あります。道の 混み方で 変わります。この 表に ない 場所の あいだは、Googleマップで 調べて 入れましょう。</p>
+        </div>
+      </details>
+
+      <p class="small">「どこ」は ステップ1で えらんだ 場所が 候補に 出ます。自分で 書いても OK。場所を えらぶと、「いる 時間」に めやすが 入ります(直せます)。</p>
+      <div class="scroll">
+        <table>
+          <thead><tr><th>どこ</th><th>うごく 時間(分)<br><span style="font-weight:400">前の 場所から</span></th><th>着く</th><th>いる 時間(分)</th><th>出る</th><th>メモ</th><th></th></tr></thead>
+          <tbody id="plan">
+            <tr class="fixed" id="row-start"><th colspan="4">宮崎空港 出発</th><td class="time" id="start-show">9:00</td><td></td><td></td></tr>
+          </tbody>
+          <tfoot>
+            <tr class="fixed" id="row-back"><th>宮崎空港へ もどる</th>
+              <td class="num"><input type="number" min="0" step="5" id="back-move" aria-label="空港へ もどる 移動(分)" inputmode="numeric"></td>
+              <td class="time" id="back-arrive">–</td><td colspan="4"></td></tr>
+          </tfoot>
+        </table>
+      </div>
+      <datalist id="picked"></datalist>
+      <div class="row-actions">
+        <button class="btn" id="addrow" type="button">+ 行を ふやす</button>
+        <span class="small">行は いくつでも ふやせます。昼ごはんも 1行 入れましょう。</span>
+      </div>
+    </section>
+
+    <section class="step" aria-labelledby="h-step3">
+      <div class="step-head"><span class="badge">ステップ3</span><h2 id="h-step3">クラスに 話そう</h2><span class="who">1チーム 30秒くらい</span></div>
+      <div class="say"><span class="lead">話す 型</span>
+        <p>私たちは <span class="u"></span> エリアに 行きます。</p>
+        <p>まず <span class="u"></span> に 行って、<span class="u"></span> を 食べます。</p>
+        <p>そのあと <span class="u"></span> に 行きます。</p>
+      </div>
+      <label class="map"><input type="checkbox" id="map-saved"> <span>プランに 入れた 場所を、Googleマップに 保存した</span></label>
+    </section>
+
+    <section class="step" aria-labelledby="h-step4">
+      <div class="step-head"><span class="badge o">ステップ4</span><h2 id="h-step4">先生に 提出しよう</h2><span class="who">代表の 人が 1回 おす</span></div>
+      <div class="submit-box">
+        <p><span class="rep">代表の 人</span>が、ボタンを おしてください。メールの アプリが ひらくので、そのまま 送信します。</p>
+        <a class="btn primary" id="submit" href="#" role="button">メールで 先生に 送る</a>
+        <p id="sub-status" role="status" aria-live="polite"></p>
+        <details id="sub-fallback">
+          <summary>メールが ひらかない とき</summary>
+          <p class="small">下の 文を コピーして、メールか LINE で 先生に 送ってください。</p>
+          <textarea id="sub-code" readonly aria-label="提出する 文"></textarea>
+          <div class="row-actions"><button class="btn" id="sub-copy" type="button">文を コピー</button></div>
+        </details>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script>
+(function () {
+  /* 場所データ  n:名前 t:種類 d:説明 s:滞在の目安(分) src:公式モデルコースの時間なら true(なければ「仮」) h:営業時間 o/c:開く・閉まる(分) a:道のり */
+  var DEFAULT_STAY = { '自然': 45, '歴史': 45, '神話': 45, '温泉': 60, '買い物': 20, '体験': 60, '食': 60, '祭り': 60 };
+  var DATA = [
+    { id: 'n', cls: 'n', name: '県北', cities: '延岡市・日向市 ほか', groups: [
+      { city: '延岡市', items: [
+        { n: '延岡の 元祖チキン南蛮', t: '食', d: 'タルタルを かけない 元祖スタイルの チキン南蛮' },
+        { n: 'メヒカリの 唐揚げ', t: '食', d: '延岡の 海の さかな料理' },
+      ]},
+      { city: '日向市', items: [
+        { n: '馬ヶ背', t: '自然', d: '海に 出た 断崖', h: '茶屋 4〜9月 9:10〜17:50 / 10〜3月 8:40〜17:20', a: 'クルスの海から 約5分' },
+        { n: '願いが叶うクルスの海', t: '自然', d: '海岸の 景色', a: '宮崎空港から 約1時間20分' },
+        { n: '美々津の 町なみ', t: '歴史', d: '古い 町なみを 歩く' },
+        { n: 'お倉ヶ浜でサーフィン', t: '体験', d: '日本でも 有数の サーフポイント。初心者から 上級者まで', s: 120 },
+      ]},
+      { city: '高千穂町(県北の 山)', items: [
+        { n: '高千穂峡', t: '自然', d: 'ボートに のって 滝や 自然を 見る', h: 'ボート 8:30〜17:00(最後の 受付 16:30)', a: '宮崎空港から 約2時間' },
+        { n: '天岩戸神社', t: '神話', d: '太陽の神 天照大御神を まつる。大きな 洞窟', h: '社務所 8:30〜17:00', a: '道の駅青雲橋から 約20分' }
+      ]}
+    ]},
+    { id: 'c', cls: 'c', name: '県央', cities: '宮崎市・西都市(青島を 含む)', groups: [
+      { city: '宮崎市', items: [
+        { n: '青島 (青島神社・鬼の洗濯板)', t: '自然', d: '亜熱帯の 植物に かこまれた 小さな 島', s: 60, src: true, h: '参拝 6:00〜日没', a: '宮崎空港から 約15分' },
+        { n: '青島でサーフィン', t: '体験', d: '県内で 有名な ビーチ。初心者向けの ウォータースポーツも', s: 120, a: '宮崎空港から 約15分' },
+        { n: '宮崎神宮', t: '神話', d: '初代天皇 神武天皇を まつる 神社', s: 60, src: true },
+        { n: '幸せの黄色いポスト', t: '体験', d: '黄色い ポスト', s: 20 },
+        { n: '宮崎市の チキン南蛮', t: '食', d: '宮崎の 名物料理' },
+        { n: '地鶏の 炭火焼', t: '食', d: '宮崎の 地鶏を 炭火で 焼く' },
+      ]},
+      { city: '西都市', items: [
+        { n: '西都原古墳群', t: '歴史', d: 'たくさんの 古墳が ある', h: 'このはな館 9:00〜17:00', a: '宮崎空港から 約1時間' },
+        { n: '都萬神社', t: '神話', d: '神社' },
+      ]}
+    ]},
+    { id: 's', cls: 's', name: '県南', cities: '日南市・串間市', groups: [
+      { city: '日南市', items: [
+        { n: '鵜戸神宮', t: '神話', d: '海ぞいの 洞窟の 中に 本殿。運玉投げ', s: 60, src: true, h: '開門 6:00〜18:00', o: 360, c: 1080, a: '宮崎空港から 約45分' },
+        { n: 'サンメッセ日南', t: '体験', d: 'モアイ像。夕日と 海が きれい', s: 45, src: true, h: '9:30〜17:00(水曜 休み)', o: 570, c: 1020, a: '鵜戸神宮へ 約15分' },
+        { n: '飫肥城下町', t: '歴史', d: '食べ歩きが できる 城下町', a: '鵜戸神宮から 約30分' },
+        { n: '猪八重渓谷', t: '自然', d: '20以上の 滝が ある 渓谷。足湯も' },
+        { n: 'カツオの 炙り重', t: '食', d: 'カツオ料理' }
+      ]},
+      { city: '串間市', items: [
+        { n: '都井岬', t: '自然', d: '野生の 馬が 見られる', h: '開門 4〜9月 8:30〜18:00 / 10〜3月 8:00〜17:30', a: '宮崎空港から 約1時間30分' },
+        { n: '幸島', t: '自然', d: 'サルで 知られる 島。船で 行く', a: '道の駅なんごうから 約20分' },
+        { n: '恋ヶ浦でサーフィン', t: '体験', d: '県内で 人気の サーフィンスポット', s: 120 },
+      ]}
+    ]}
+  ];
+
+  var byName = {};
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function stayOf(it) { return it.s != null ? it.s : DEFAULT_STAY[it.t]; }
+
+  var areasEl = document.getElementById('areas');
+  var html = '';
+  DATA.forEach(function (a) {
+    html += '<section class="area ' + a.cls + '"><div class="area-head"><h3>' + a.name + '</h3><span class="cnt" data-cnt="' + a.id + '">0 か所</span></div><p class="cities">' + a.cities + '</p>';
+    a.groups.forEach(function (g) {
+      html += '<div class="city">' + esc(g.city) + '</div>';
+      if (g.note) html += '<p class="note-mtn">' + esc(g.note) + '</p>';
+      g.items.forEach(function (it) {
+        byName[it.n] = it;
+        var meta = '<span class="pmeta">滞在の めやす <b>' + stayOf(it) + '分</b>' + (it.src ? '' : '(仮)') + '</span>';
+        if (it.a) meta += '<span class="pmeta">道のり: ' + esc(it.a) + '</span>';
+        if (it.h) meta += '<span class="pmeta">営業: ' + esc(it.h) + '</span>';
+        html += '<label class="place"><input type="checkbox" data-area="' + a.id + '" data-name="' + esc(it.n) + '">' +
+          '<span><span class="pname">' + esc(it.n) + '</span><br><span class="pdesc"><span class="tag">' + esc(it.t) + '</span>' + esc(it.d) + '</span>' + meta + '</span></label>';
+      });
+    });
+    html += '</section>';
+  });
+  areasEl.innerHTML = html;
+
+  var totalEl = document.getElementById('total');
+  var datalist = document.getElementById('picked');
+  function refreshPicked() {
+    var per = { n: 0, c: 0, s: 0 }, all = 0, names = [];
+    Array.prototype.forEach.call(areasEl.querySelectorAll('input[type="checkbox"]'), function (b) {
+      b.parentNode.classList.toggle('on', b.checked);
+      if (b.checked) { per[b.getAttribute('data-area')]++; all++; names.push(b.getAttribute('data-name')); }
+    });
+    Object.keys(per).forEach(function (k) { areasEl.querySelector('[data-cnt="' + k + '"]').textContent = per[k] + ' か所'; });
+    totalEl.textContent = 'えらんだ 数 ' + all;
+    datalist.innerHTML = names.map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
+  }
+  areasEl.addEventListener('change', refreshPicked);
+  refreshPicked();
+
+  /* 時刻の計算 */
+  function fmt(m) { m = Math.round(m); var h = Math.floor(m / 60), r = m % 60; return h + ':' + (r < 10 ? '0' : '') + r; }
+  function dur(m) { m = Math.max(0, Math.round(m)); var h = Math.floor(m / 60), r = m % 60; return h ? h + '時間' + (r ? r + '分' : '') : r + '分'; }
+  function parseTime(v, dflt) { var p = /^(\d{1,2}):(\d{2})$/.exec(v || ''); return p ? (+p[1]) * 60 + (+p[2]) : dflt; }
+  function num(v) { var n = parseFloat(v); return n > 0 ? n : 0; }
+
+  var planEl = document.getElementById('plan');
+  var startEl = document.getElementById('t-start'), endEl = document.getElementById('t-end');
+  var backMove = document.getElementById('back-move');
+
+  function addRow() {
+    var tr = document.createElement('tr');
+    tr.className = 'stop';
+    tr.innerHTML =
+      '<td><input type="text" list="picked" class="f-place" aria-label="どこ" autocomplete="off"><span class="info"></span><span class="warn"></span></td>' +
+      '<td class="num"><input type="number" min="0" step="5" class="f-move" aria-label="前の 場所からの 移動(分)" inputmode="numeric"></td>' +
+      '<td class="time arr">–</td>' +
+      '<td class="num"><input type="number" min="0" step="5" class="f-stay" aria-label="いる 時間(分)" inputmode="numeric"></td>' +
+      '<td class="time dep">–</td>' +
+      '<td><input type="text" class="f-memo" aria-label="メモ" autocomplete="off"></td>' +
+      '<td class="rm"><button type="button" aria-label="この行を 消す">×</button></td>';
+    tr.querySelector('.rm button').addEventListener('click', function () { tr.remove(); recalc(); });
+    planEl.appendChild(tr);
+  }
+
+  function recalc() {
+    var start = parseTime(startEl.value, 540), end = parseTime(endEl.value, 1080);
+    if (end <= start) end += 24 * 60;
+    var avail = end - start, t = start;
+    document.getElementById('start-show').textContent = fmt(start);
+    Array.prototype.forEach.call(planEl.querySelectorAll('tr.stop'), function (tr) {
+      var move = num(tr.querySelector('.f-move').value), stay = num(tr.querySelector('.f-stay').value);
+      var name = tr.querySelector('.f-place').value.trim(), it = byName[name];
+      var arr = t + move, dep = arr + stay;
+      tr.querySelector('.arr').textContent = (move || stay || name) ? fmt(arr) : '–';
+      tr.querySelector('.dep').textContent = (move || stay || name) ? fmt(dep) : '–';
+      var info = tr.querySelector('.info'), warn = tr.querySelector('.warn'), msgs = [];
+      info.textContent = it && it.h ? '営業: ' + it.h : '';
+      if (it && it.o != null && (move || stay) && arr < it.o) msgs.push('まだ 開いて いません(' + fmt(it.o) + 'から)');
+      if (it && it.c != null && (move || stay) && dep > it.c) msgs.push(fmt(it.c) + 'に 閉まります');
+      warn.textContent = msgs.join(' / ');
+      t = dep;
+    });
+    var back = num(backMove.value), home = t + back;
+    document.getElementById('back-arrive').textContent = fmt(home);
+    var used = home - start, left = avail - used, over = left < 0;
+    document.getElementById('n-avail').textContent = dur(avail);
+    document.getElementById('n-used').textContent = dur(used);
+    document.getElementById('n-left').textContent = over ? dur(-left) + ' オーバー' : dur(left);
+    document.getElementById('n-left-wrap').classList.toggle('over', over);
+    var meter = document.getElementById('meter');
+    meter.classList.toggle('over', over);
+    document.getElementById('meter-bar').style.width = Math.min(100, Math.max(0, used / avail * 100)) + '%';
+  }
+
+  planEl.addEventListener('input', function (e) { if (e.target.classList.contains('f-place') ) {} recalc(); });
+  planEl.addEventListener('change', function (e) {
+    if (e.target.classList.contains('f-place')) {
+      var tr = e.target.closest('tr'), it = byName[e.target.value.trim()], stayEl = tr.querySelector('.f-stay');
+      if (it && !stayEl.value) stayEl.value = stayOf(it);
+    }
+    recalc();
+  });
+  [startEl, endEl, backMove].forEach(function (el) { el.addEventListener('input', recalc); });
+  document.getElementById('addrow').addEventListener('click', function () { addRow(); recalc(); });
+  for (var i = 0; i < 6; i++) addRow();
+  recalc();
+
+  /* ===== 提出(メール) ===== */
+  var TO = 'shenyilangguhe013@gmail.com';
+  var AREA = { n: '県北', c: '県央', s: '県南' };
+  var subBtn = document.getElementById('submit'), statusEl = document.getElementById('sub-status'), codeEl = document.getElementById('sub-code'), fbEl = document.getElementById('sub-fallback');
+  function setStatus(msg, cls) { statusEl.textContent = msg; statusEl.className = cls || ''; }
+  function buildText() {
+    var L = ['【宮崎プラン】', '', '■ 行きたい 場所'];
+    ['n', 'c', 's'].forEach(function (k) {
+      var names = [];
+      Array.prototype.forEach.call(areasEl.querySelectorAll('input[data-area="' + k + '"]'), function (b) { if (b.checked) names.push(b.getAttribute('data-name')); });
+      L.push(AREA[k] + ': ' + (names.join('、') || 'なし'));
+    });
+    L.push('', '■ プラン');
+    var i = 0;
+    Array.prototype.forEach.call(planEl.querySelectorAll('tr.stop'), function (tr) {
+      var place = tr.querySelector('.f-place').value.trim(), memo = tr.querySelector('.f-memo').value.trim();
+      var move = num(tr.querySelector('.f-move').value), stay = num(tr.querySelector('.f-stay').value);
+      if (!place && !move && !stay && !memo) return;
+      i++;
+      L.push(i + '. ' + tr.querySelector('.arr').textContent + '-' + tr.querySelector('.dep').textContent + ' ' + (place || '(未入力)') + '(移動' + move + '分/' + stay + '分)' + (memo ? ' メモ:' + memo : ''));
+    });
+    L.push('', 'Googleマップ保存: ' + (document.getElementById('map-saved').checked ? 'した' : 'まだ'));
+    return L.join('\n');
+  }
+  function refreshMail() {
+    var text = buildText();
+    codeEl.value = text;
+    subBtn.href = 'mailto:' + TO + '?subject=' + encodeURIComponent('【宮崎プラン】') + '&body=' + encodeURIComponent(text);
+  }
+  subBtn.addEventListener('click', function (e) {
+    refreshMail();
+    setStatus('メールの アプリが ひらきます。ひらかない ときは、下の「メールが ひらかない とき」を ひらいてください。', 'ok');
+  });
+  subBtn.addEventListener('focus', refreshMail);
+  subBtn.addEventListener('pointerdown', refreshMail);
+  fbEl.addEventListener('toggle', function () { if (fbEl.open) refreshMail(); });
+  refreshMail();
+  document.getElementById('sub-copy').addEventListener('click', async function () {
+    refreshMail();
+    try { await navigator.clipboard.writeText(codeEl.value); setStatus('コピーしました。', 'ok'); }
+    catch (e) { codeEl.select(); setStatus('文を 選びました。コピーして ください。'); }
+  });
+})();
+</script>
+
+</body>
+</html>
