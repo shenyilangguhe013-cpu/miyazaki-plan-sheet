@@ -135,7 +135,8 @@ thead th { background: var(--green-tint); color: var(--green-ink); font-size: 13
 td input { width: 100%; font: 500 15px var(--font-body); color: var(--ink); background: transparent; border: 0; padding: 8px 6px; min-height: 44px; }
 td input[type="number"] { text-align: right; }
 td.num { width: 5.8em; } td.time { width: 4.6em; text-align: center; font: 800 16px var(--font-head); font-variant-numeric: tabular-nums; }
-td.rm { width: 3em; text-align: center; }
+td.rm { width: 6.5em; text-align: center; white-space: nowrap; }
+.rm .up, .rm .dn { font-size: 13px; padding: 6px 5px; }
 .rm button { font: 700 16px var(--font-body); color: var(--muted); background: transparent; border: 0; cursor: pointer; padding: 6px 8px; border-radius: 6px; }
 tr.fixed td, tr.fixed th { background: var(--orange-tint); }
 tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size: 14px; padding: 8px 10px; }
@@ -510,8 +511,10 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
       '<td class="num"><input type="number" min="0" step="5" class="f-stay" aria-label="いる 時間(分)" inputmode="numeric"></td>' +
       '<td class="time dep">–</td>' +
       '<td><input type="text" class="f-memo" aria-label="メモ" autocomplete="off"></td>' +
-      '<td class="rm"><button type="button" aria-label="この行を 消す">×</button></td>';
-    tr.querySelector('.rm button').addEventListener('click', function () { tr.remove(); autoMoves(); recalc(); });
+      '<td class="rm"><button type="button" class="up" aria-label="上へ">▲</button><button type="button" class="dn" aria-label="下へ">▼</button><button type="button" class="del" aria-label="この行を 消す">×</button></td>';
+    tr.querySelector('.del').addEventListener('click', function () { tr.remove(); autoMoves(); recalc(); });
+    tr.querySelector('.up').addEventListener('click', function () { var pv = tr.previousElementSibling; if (pv && pv.classList.contains('stop')) { planEl.insertBefore(tr, pv); autoMoves(); recalc(); } });
+    tr.querySelector('.dn').addEventListener('click', function () { var nx = tr.nextElementSibling; if (nx && nx.classList.contains('stop')) { planEl.insertBefore(nx, tr); autoMoves(); recalc(); } });
     planEl.appendChild(tr);
   }
 
