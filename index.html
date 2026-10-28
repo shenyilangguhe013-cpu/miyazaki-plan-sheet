@@ -287,6 +287,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
         <p class="chooser-lead" id="chooser-lead"></p>
         <div class="chips" id="chips"></div>
       </div>
+      <div class="row-actions"><button class="btn" id="say-reset" type="button"><span class="ja">えらんだ ものを ぜんぶ とり消す</span><span class="zh" lang="zh-Hant">取消全部選擇</span></button></div>
       <label class="map"><input type="checkbox" id="map-saved"> <span><span class="ja">プランに 入れた 場所を、Googleマップに 保存した</span><span class="zh" lang="zh-Hant">已把行程中的地點存到Google地圖</span></span></label>
     </section>
 
@@ -661,17 +662,18 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
       pool.forEach(function (it) { opts.push({ v: it.n, label: nameOf(it), on: say[k] === it.n, dim: !chk[it.n] }); });
       leadEl.textContent = k === 'food' ? T('食べる ものを えらぼう(ステップ1で チェックした ものが 先に 出ます)', '請選擇想吃的料理（步驟1勾選的會排在前面）') : T('行く 場所を えらぼう(ステップ1で チェックした 場所が 先に 出ます)', '請選擇要去的地點（步驟1勾選的會排在前面）');
     }
-    chipsEl.innerHTML = opts.map(function (o, i) { return '<button type="button" class="chip-b' + (o.on ? ' on' : '') + (o.dim ? ' dim' : '') + '" data-i="' + i + '">' + esc(o.label) + '</button>'; }).join('') + '<button type="button" class="chip-b clear" data-i="-1">' + T('空にする', '清除') + '</button>';
+    chipsEl.innerHTML = opts.map(function (o, i) { return '<button type="button" class="chip-b' + (o.on ? ' on' : '') + (o.dim ? ' dim' : '') + '" data-i="' + i + '">' + esc(o.label) + '</button>'; }).join('') + '<button type="button" class="chip-b clear" data-i="-1">' + T('とり消す', '取消選擇') + '</button>';
     chipsEl._opts = opts;
     chooserEl.hidden = false; renderSay();
   }
   chipsEl.addEventListener('click', function (e) {
     var b = e.target.closest('button'); if (!b || openKey == null) return;
     var i = +b.getAttribute('data-i');
-    say[openKey] = i < 0 ? null : chipsEl._opts[i].v;
+    say[openKey] = (i < 0 || chipsEl._opts[i].on) ? null : chipsEl._opts[i].v;
     closeChooser();
   });
   Array.prototype.forEach.call(document.querySelectorAll('.u'), function (b) { b.addEventListener('click', function () { openChooser(b.getAttribute('data-k')); }); });
+  document.getElementById('say-reset').addEventListener('click', function () { say.area = say.p1 = say.food = say.p2 = null; closeChooser(); });
   /* 言語を かえたら 表示を 作り直す */
   var _setLang = setLang;
   setLang = function (l, save) { _setLang(l, save); if (openKey) { var k = openKey; openKey = null; openChooser(k); } renderSay(); };
