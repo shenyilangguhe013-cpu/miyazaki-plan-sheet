@@ -148,88 +148,99 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
 @media (max-width: 900px) { .areas { grid-template-columns: 1fr; } .guide-grid { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .team { grid-template-columns: 1fr; } .day .cond { margin-left: 0; } }
 @media print { .row-actions .btn { display: none; } body { padding: 0; background: #fff; } }
+
+.ja, .zh { }
+.wrap[data-lang="ja"] .zh { display: none !important; }
+.wrap[data-lang="zh"] .ja { display: none !important; }
+.wrap[data-lang="zh"] { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", var(--font-body); }
+.langbar { display: flex; justify-content: flex-end; gap: 0; margin: 0 0 10px; }
+.langbar button { font: 700 13px var(--font-body); color: var(--ink); background: transparent; border: 1.5px solid var(--line); padding: 5px 14px; cursor: pointer; }
+.langbar button:first-child { border-radius: 999px 0 0 999px; } .langbar button:last-child { border-radius: 0 999px 999px 0; border-left: 0; }
+.langbar button[aria-pressed="true"] { background: var(--green-ink); color: var(--paper); border-color: var(--green-ink); }
+@media print { .langbar { display: none; } }
 </style>
 </head>
 <body>
 
-<div class="wrap">
+<div class="wrap" data-lang="ja">
   <main class="paper">
-    <h1><span class="g">宮崎</span>の どこへ 行く?<span class="o"> 1日プランを 作ろう</span></h1>
-    <p class="sub">県北・県央・県南から、行きたい 場所を えらびます。えらぶ 数に 制限は ありません。ただし、旅行の 1日には 時間の 限りが あります。時間が ゆるす かぎり えらんで、プランに しましょう。</p>
+    <div class="langbar" role="group" aria-label="言語 / 語言"><button type="button" data-l="ja" aria-pressed="true">日本語</button><button type="button" data-l="zh" aria-pressed="false">繁體中文</button></div>
+    <h1><span class="ja"><span class="g">宮崎</span>の どこへ 行く?<span class="o"> 1日プランを 作ろう</span></span><span class="zh" lang="zh-Hant"><span class="g">宮崎</span>要去哪裡？<span class="o">來規劃一日行程吧</span></span></h1>
+    <p class="sub"><span class="ja">県北・県央・県南から、行きたい 場所を えらびます。えらぶ 数に 制限は ありません。ただし、旅行の 1日には 時間の 限りが あります。時間が ゆるす かぎり えらんで、プランに しましょう。</span><span class="zh" lang="zh-Hant">從縣北、縣央、縣南選出想去的地方。選擇的數量沒有限制，但旅行的一天時間有限。請在時間允許的範圍內盡量選，排成行程吧。</span></p>
 
     <section class="day" aria-label="旅行1日の時間わく">
       <div class="day-top">
-        <span class="lead">旅行1日の 時間わく</span>
-        <label for="t-start">宮崎空港を 出る<input id="t-start" type="time" value="09:00"></label>
-        <label for="t-end">もどる 時刻<input id="t-end" type="time" value="18:00"></label>
-        <span class="cond">レンタカーで まわる 前提 ・ 宮崎空港が スタート</span>
+        <span class="lead"><span class="ja">旅行1日の 時間わく</span><span class="zh" lang="zh-Hant">旅行一天的時間</span></span>
+        <label for="t-start"><span class="ja">宮崎空港を 出る</span><span class="zh" lang="zh-Hant">從宮崎機場出發</span><input id="t-start" type="time" value="09:00"></label>
+        <label for="t-end"><span class="ja">もどる 時刻</span><span class="zh" lang="zh-Hant">回到機場的時刻</span><input id="t-end" type="time" value="18:00"></label>
+        <span class="cond"><span class="ja">レンタカーで まわる 前提 ・ 宮崎空港が スタート</span><span class="zh" lang="zh-Hant">以租車移動為前提・從宮崎機場出發</span></span>
       </div>
       <div class="meter" id="meter" role="img" aria-label="使った 時間"><i id="meter-bar"></i></div>
       <div class="day-nums" aria-live="polite">
-        <span>全部で <b id="n-avail">9時間0分</b></span>
-        <span>つかった <b id="n-used">0分</b></span>
-        <span class="left" id="n-left-wrap">のこり <b id="n-left">9時間0分</b></span>
+        <span><span class="ja">全部で</span><span class="zh" lang="zh-Hant">總共</span> <b id="n-avail">9時間0分</b></span>
+        <span><span class="ja">つかった</span><span class="zh" lang="zh-Hant">已使用</span> <b id="n-used">0分</b></span>
+        <span class="left" id="n-left-wrap"><span class="ja">のこり</span><span class="zh" lang="zh-Hant">剩餘</span> <b id="n-left">9時間0分</b></span>
       </div>
     </section>
 
     <section class="step" aria-labelledby="h-step1">
       <div class="step-head">
-        <span class="badge">ステップ1</span><h2 id="h-step1">行きたい ところに チェック</h2>
-        <span class="who">いくつでも</span><span class="total" id="total" aria-live="polite">えらんだ 数 0</span>
+        <span class="badge"><span class="ja">ステップ1</span><span class="zh" lang="zh-Hant">步驟1</span></span><h2 id="h-step1"><span class="ja">行きたい ところに チェック</span><span class="zh" lang="zh-Hant">勾選想去的地方</span></h2>
+        <span class="who"><span class="ja">いくつでも</span><span class="zh" lang="zh-Hant">選幾個都可以</span></span><span class="total" id="total" aria-live="polite">えらんだ 数 0</span>
       </div>
-      <div class="hint"><b>ヒント</b> 県北・県央・県南は 離れています。「滞在の めやす」と 「道のり」を 見ながら、1日に 入る 数を 考えましょう。(「仮」と 書いた 時間は 私たちの 仮の めやすです。自分で 直して OK)</div>
+      <div class="hint"><span class="ja"><b>ヒント</b> 県北・県央・県南は 離れています。「滞在の めやす」と 「道のり」を 見ながら、1日に 入る 数を 考えましょう。(「仮」と 書いた 時間は 私たちの 仮の めやすです。自分で 直して OK)</span><span class="zh" lang="zh-Hant"><b>提示</b> 縣北、縣央、縣南彼此相距較遠。請參考「建議停留時間」和「路程」，想想一天能排進幾個地方。（標示「暫定」的時間是我們暫時的參考值，可以自己修改）</span></div>
       <div class="areas" id="areas"></div>
     </section>
 
     <section class="step" aria-labelledby="h-step2">
       <div class="step-head">
-        <span class="badge o">ステップ2</span><h2 id="h-step2">1日の プランを 作ろう</h2>
-        <span class="who">時間の じゅんに ならべる</span>
+        <span class="badge o"><span class="ja">ステップ2</span><span class="zh" lang="zh-Hant">步驟2</span></span><h2 id="h-step2"><span class="ja">1日の プランを 作ろう</span><span class="zh" lang="zh-Hant">來排一日行程</span></h2>
+        <span class="who"><span class="ja">時間の じゅんに ならべる</span><span class="zh" lang="zh-Hant">依時間順序排列</span></span>
       </div>
 
       <details class="guide" open>
-        <summary>車での 移動時間の めやす(宮崎県観光協会の 情報)</summary>
+        <summary><span class="ja">車での 移動時間の めやす(宮崎県観光協会の 情報)</span><span class="zh" lang="zh-Hant">開車移動時間的參考（宮崎縣觀光協會的資訊）</span></summary>
         <div class="guide-grid">
           <div>
-            <h4>宮崎空港から</h4>
+            <h4><span class="ja">宮崎空港から</span><span class="zh" lang="zh-Hant">從宮崎機場出發</span></h4>
             <dl>
-              <dt>青島</dt><dd>約15分</dd>
-              <dt>鵜戸神宮</dt><dd>約45分</dd>
-              <dt>西都原古墳群</dt><dd>約1時間</dd>
-              <dt>日向(願いが叶うクルスの海)</dt><dd>約1時間20分</dd>
-              <dt>都井岬</dt><dd>約1時間30分</dd>
-              <dt>延岡(須美江)</dt><dd>約1時間50分</dd>
-              <dt>高千穂(道の駅青雲橋)</dt><dd>約2時間</dd>
+              <dt><span class="ja">青島</span><span class="zh" lang="zh-Hant">青島</span></dt><dd><span class="ja">約15分</span><span class="zh" lang="zh-Hant">約 15 分鐘</span></dd>
+              <dt><span class="ja">鵜戸神宮</span><span class="zh" lang="zh-Hant">鵜戶神宮</span></dt><dd><span class="ja">約45分</span><span class="zh" lang="zh-Hant">約 45 分鐘</span></dd>
+              <dt><span class="ja">西都原古墳群</span><span class="zh" lang="zh-Hant">西都原古墳群</span></dt><dd><span class="ja">約1時間</span><span class="zh" lang="zh-Hant">約 1 小時</span></dd>
+              <dt><span class="ja">日向(願いが叶うクルスの海)</span><span class="zh" lang="zh-Hant">日向（願望成真的十字海）</span></dt><dd><span class="ja">約1時間20分</span><span class="zh" lang="zh-Hant">約 1 小時 20 分鐘</span></dd>
+              <dt><span class="ja">都井岬</span><span class="zh" lang="zh-Hant">都井岬</span></dt><dd><span class="ja">約1時間30分</span><span class="zh" lang="zh-Hant">約 1 小時 30 分鐘</span></dd>
+              <dt><span class="ja">延岡(須美江)</span><span class="zh" lang="zh-Hant">延岡（須美江）</span></dt><dd><span class="ja">約1時間50分</span><span class="zh" lang="zh-Hant">約 1 小時 50 分鐘</span></dd>
+              <dt><span class="ja">高千穂(道の駅青雲橋)</span><span class="zh" lang="zh-Hant">高千穗（道之驛青雲橋）</span></dt><dd><span class="ja">約2時間</span><span class="zh" lang="zh-Hant">約 2 小時</span></dd>
             </dl>
           </div>
           <div>
-            <h4>場所と 場所の あいだ</h4>
+            <h4><span class="ja">場所と 場所の あいだ</span><span class="zh" lang="zh-Hant">地點與地點之間</span></h4>
             <dl>
-              <dt>クルスの海 → 馬ヶ背</dt><dd>約5分</dd>
-              <dt>馬ヶ背 → 道の駅とうごう</dt><dd>約35分</dd>
-              <dt>道の駅北浦 → 城山公園</dt><dd>約30分</dd>
-              <dt>道の駅青雲橋 → 天岩戸神社</dt><dd>約20分</dd>
-              <dt>天安河原 → 高千穂峡</dt><dd>約20分</dd>
-              <dt>サンメッセ日南 → 鵜戸神宮</dt><dd>約15分</dd>
-              <dt>鵜戸神宮 → 飫肥城下町</dt><dd>約30分</dd>
-              <dt>飫肥城下町 → 道の駅なんごう</dt><dd>約30分</dd>
-              <dt>道の駅なんごう → 幸島</dt><dd>約20分</dd>
-              <dt>幸島 → 都井岬</dt><dd>約25分</dd>
+              <dt><span class="ja">クルスの海 → 馬ヶ背</span><span class="zh" lang="zh-Hant">十字海 → 馬背</span></dt><dd><span class="ja">約5分</span><span class="zh" lang="zh-Hant">約 5 分鐘</span></dd>
+              <dt><span class="ja">馬ヶ背 → 道の駅とうごう</span><span class="zh" lang="zh-Hant">馬背 → 道之驛とうごう</span></dt><dd><span class="ja">約35分</span><span class="zh" lang="zh-Hant">約 35 分鐘</span></dd>
+              <dt><span class="ja">道の駅北浦 → 城山公園</span><span class="zh" lang="zh-Hant">道之驛北浦 → 城山公園</span></dt><dd><span class="ja">約30分</span><span class="zh" lang="zh-Hant">約 30 分鐘</span></dd>
+              <dt><span class="ja">道の駅青雲橋 → 天岩戸神社</span><span class="zh" lang="zh-Hant">道之驛青雲橋 → 天岩戶神社</span></dt><dd><span class="ja">約20分</span><span class="zh" lang="zh-Hant">約 20 分鐘</span></dd>
+              <dt><span class="ja">天安河原 → 高千穂峡</span><span class="zh" lang="zh-Hant">天安河原 → 高千穗峽</span></dt><dd><span class="ja">約20分</span><span class="zh" lang="zh-Hant">約 20 分鐘</span></dd>
+              <dt><span class="ja">サンメッセ日南 → 鵜戸神宮</span><span class="zh" lang="zh-Hant">日南太陽訊息園區 → 鵜戶神宮</span></dt><dd><span class="ja">約15分</span><span class="zh" lang="zh-Hant">約 15 分鐘</span></dd>
+              <dt><span class="ja">鵜戸神宮 → 飫肥城下町</span><span class="zh" lang="zh-Hant">鵜戶神宮 → 飫肥城下町</span></dt><dd><span class="ja">約30分</span><span class="zh" lang="zh-Hant">約 30 分鐘</span></dd>
+              <dt><span class="ja">飫肥城下町 → 道の駅なんごう</span><span class="zh" lang="zh-Hant">飫肥城下町 → 道之驛なんごう</span></dt><dd><span class="ja">約30分</span><span class="zh" lang="zh-Hant">約 30 分鐘</span></dd>
+              <dt><span class="ja">道の駅なんごう → 幸島</span><span class="zh" lang="zh-Hant">道之驛なんごう → 幸島</span></dt><dd><span class="ja">約20分</span><span class="zh" lang="zh-Hant">約 20 分鐘</span></dd>
+              <dt><span class="ja">幸島 → 都井岬</span><span class="zh" lang="zh-Hant">幸島 → 都井岬</span></dt><dd><span class="ja">約25分</span><span class="zh" lang="zh-Hant">約 25 分鐘</span></dd>
             </dl>
           </div>
-          <p class="small">高速道路を つかう 場合が あります。道の 混み方で 変わります。この 表に ない 場所の あいだは、Googleマップで 調べて 入れましょう。</p>
+          <p class="small"><span class="ja">高速道路を つかう 場合が あります。道の 混み方で 変わります。この 表に ない 場所の あいだは、Googleマップで 調べて 入れましょう。</span><span class="zh" lang="zh-Hant">有時會使用高速公路，路況也會影響時間。表中沒有的區間，請用Google地圖查詢後填入。</span></p>
         </div>
       </details>
 
-      <p class="small">「どこ」は ステップ1で えらんだ 場所が 候補に 出ます。自分で 書いても OK。場所を えらぶと、「いる 時間」に めやすが 入ります(直せます)。</p>
+      <p class="small"><span class="ja">「どこ」は ステップ1で えらんだ 場所が 候補に 出ます。自分で 書いても OK。場所を えらぶと、「いる 時間」に めやすが 入ります(直せます)。</span><span class="zh" lang="zh-Hant">「地點」欄會顯示步驟1選的地方作為候選，也可以自己填寫。選好地點後，「停留時間」會自動填入參考值（可修改）。</span></p>
       <div class="scroll">
         <table>
-          <thead><tr><th>どこ</th><th>うごく 時間(分)<br><span style="font-weight:400">前の 場所から</span></th><th>着く</th><th>いる 時間(分)</th><th>出る</th><th>メモ</th><th></th></tr></thead>
+          <thead><tr><th><span class="ja">どこ</span><span class="zh" lang="zh-Hant">地點</span></th><th><span class="ja">うごく 時間(分)<br><span style="font-weight:400">前の 場所から</span></span><span class="zh" lang="zh-Hant">移動時間（分）<br><span style="font-weight:400">從上一個地點</span></span></th><th><span class="ja">着く</span><span class="zh" lang="zh-Hant">抵達</span></th><th><span class="ja">いる 時間(分)</span><span class="zh" lang="zh-Hant">停留（分）</span></th><th><span class="ja">出る</span><span class="zh" lang="zh-Hant">離開</span></th><th><span class="ja">メモ</span><span class="zh" lang="zh-Hant">備註</span></th><th></th></tr></thead>
           <tbody id="plan">
-            <tr class="fixed" id="row-start"><th colspan="4">宮崎空港 出発</th><td class="time" id="start-show">9:00</td><td></td><td></td></tr>
+            <tr class="fixed" id="row-start"><th colspan="4"><span class="ja">宮崎空港 出発</span><span class="zh" lang="zh-Hant">宮崎機場 出發</span></th><td class="time" id="start-show">9:00</td><td></td><td></td></tr>
           </tbody>
           <tfoot>
-            <tr class="fixed" id="row-back"><th>宮崎空港へ もどる</th>
+            <tr class="fixed" id="row-back"><th><span class="ja">宮崎空港へ もどる</span><span class="zh" lang="zh-Hant">回到宮崎機場</span></th>
               <td class="num"><input type="number" min="0" step="5" id="back-move" aria-label="空港へ もどる 移動(分)" inputmode="numeric"></td>
               <td class="time" id="back-arrive">–</td><td colspan="4"></td></tr>
           </tfoot>
@@ -237,32 +248,32 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
       </div>
       <datalist id="picked"></datalist>
       <div class="row-actions">
-        <button class="btn" id="addrow" type="button">+ 行を ふやす</button>
-        <span class="small">行は いくつでも ふやせます。昼ごはんも 1行 入れましょう。</span>
+        <button class="btn" id="addrow" type="button"><span class="ja">+ 行を ふやす</span><span class="zh" lang="zh-Hant">+ 新增一列</span></button>
+        <span class="small"><span class="ja">行は いくつでも ふやせます。昼ごはんも 1行 入れましょう。</span><span class="zh" lang="zh-Hant">可以新增任意列數。午餐也記得填一列。</span></span>
       </div>
     </section>
 
     <section class="step" aria-labelledby="h-step3">
-      <div class="step-head"><span class="badge">ステップ3</span><h2 id="h-step3">クラスに 話そう</h2><span class="who">1チーム 30秒くらい</span></div>
-      <div class="say"><span class="lead">話す 型</span>
-        <p>私たちは <span class="u"></span> エリアに 行きます。</p>
-        <p>まず <span class="u"></span> に 行って、<span class="u"></span> を 食べます。</p>
-        <p>そのあと <span class="u"></span> に 行きます。</p>
+      <div class="step-head"><span class="badge"><span class="ja">ステップ3</span><span class="zh" lang="zh-Hant">步驟3</span></span><h2 id="h-step3"><span class="ja">クラスに 話そう</span><span class="zh" lang="zh-Hant">向全班發表</span></h2><span class="who"><span class="ja">1チーム 30秒くらい</span><span class="zh" lang="zh-Hant">每組約30秒</span></span></div>
+      <div class="say"><span class="lead"><span class="ja">話す 型</span><span class="zh" lang="zh-Hant">發表句型</span></span>
+        <p><span class="ja">私たちは <span class="u"></span> エリアに 行きます。</span><span class="zh" lang="zh-Hant">我們要去 <span class="u"></span> 地區。</span></p>
+        <p><span class="ja">まず <span class="u"></span> に 行って、<span class="u"></span> を 食べます。</span><span class="zh" lang="zh-Hant">首先去 <span class="u"></span>，然後吃 <span class="u"></span>。</span></p>
+        <p><span class="ja">そのあと <span class="u"></span> に 行きます。</span><span class="zh" lang="zh-Hant">接著去 <span class="u"></span>。</span></p>
       </div>
-      <label class="map"><input type="checkbox" id="map-saved"> <span>プランに 入れた 場所を、Googleマップに 保存した</span></label>
+      <label class="map"><input type="checkbox" id="map-saved"> <span><span class="ja">プランに 入れた 場所を、Googleマップに 保存した</span><span class="zh" lang="zh-Hant">已把行程中的地點存到Google地圖</span></span></label>
     </section>
 
     <section class="step" aria-labelledby="h-step4">
-      <div class="step-head"><span class="badge o">ステップ4</span><h2 id="h-step4">先生に 提出しよう</h2><span class="who">代表の 人が 1回 おす</span></div>
+      <div class="step-head"><span class="badge o"><span class="ja">ステップ4</span><span class="zh" lang="zh-Hant">步驟4</span></span><h2 id="h-step4"><span class="ja">先生に 提出しよう</span><span class="zh" lang="zh-Hant">提交給老師</span></h2><span class="who"><span class="ja">代表の 人が 1回 おす</span><span class="zh" lang="zh-Hant">由代表按一次</span></span></div>
       <div class="submit-box">
-        <p><span class="rep">代表の 人</span>が、ボタンを おしてください。メールの アプリが ひらくので、そのまま 送信します。</p>
-        <a class="btn primary" id="submit" href="#" role="button">メールで 先生に 送る</a>
+        <p><span class="ja"><span class="rep">代表の 人</span>が、ボタンを おしてください。メールの アプリが ひらくので、そのまま 送信します。</span><span class="zh" lang="zh-Hant">請由<span class="rep">代表</span>按下按鈕。郵件App會自動開啟，直接寄出即可。</span></p>
+        <a class="btn primary" id="submit" href="#" role="button"><span class="ja">メールで 先生に 送る</span><span class="zh" lang="zh-Hant">用電子郵件寄給老師</span></a>
         <p id="sub-status" role="status" aria-live="polite"></p>
         <details id="sub-fallback">
-          <summary>メールが ひらかない とき</summary>
-          <p class="small">下の 文を コピーして、メールか LINE で 先生に 送ってください。</p>
+          <summary><span class="ja">メールが ひらかない とき</span><span class="zh" lang="zh-Hant">郵件App打不開時</span></summary>
+          <p class="small"><span class="ja">下の 文を コピーして、メールか LINE で 先生に 送ってください。</span><span class="zh" lang="zh-Hant">請複製下面的文字，用電子郵件或LINE傳給老師。</span></p>
           <textarea id="sub-code" readonly aria-label="提出する 文"></textarea>
-          <div class="row-actions"><button class="btn" id="sub-copy" type="button">文を コピー</button></div>
+          <div class="row-actions"><button class="btn" id="sub-copy" type="button"><span class="ja">文を コピー</span><span class="zh" lang="zh-Hant">複製文字</span></button></div>
         </details>
       </div>
     </section>
@@ -324,23 +335,31 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
   if (AREA_Q) DATA = DATA.filter(function (a) { return a.id === AREA_Q; });
 
   var byName = {};
+  var ZH = {"延岡の 元祖チキン南蛮": {"n": "延岡的元祖雞肉南蠻", "d": "不淋塔塔醬的元祖風格雞肉南蠻", "h": null, "a": null}, "メヒカリの 唐揚げ": {"n": "酥炸青眼魚", "d": "延岡的海鮮料理", "h": null, "a": null}, "馬ヶ背": {"n": "馬背", "d": "突出海面的斷崖", "h": "茶屋 4～9月 9:10～17:50／10～3月 8:40～17:20", "a": "從十字海約5分鐘"}, "願いが叶うクルスの海": {"n": "願望成真的十字海", "d": "海岸風景", "h": null, "a": "從宮崎機場約1小時20分鐘"}, "美々津の 町なみ": {"n": "美美津老街", "d": "漫步在古老的街景中", "h": null, "a": null}, "お倉ヶ浜でサーフィン": {"n": "在御倉濱衝浪", "d": "日本屈指的衝浪點，從初學者到高手都適合", "h": null, "a": null}, "高千穂峡": {"n": "高千穗峽", "d": "搭乘小船欣賞瀑布與自然風光", "h": "小船 8:30～17:00（最後受理 16:30）", "a": "從宮崎機場約2小時"}, "天岩戸神社": {"n": "天岩戶神社", "d": "供奉太陽神天照大御神，有巨大的洞窟", "h": "社務所 8:30～17:00", "a": "從道之驛青雲橋約20分鐘"}, "青島 (青島神社・鬼の洗濯板)": {"n": "青島（青島神社・鬼之洗衣板）", "d": "被亞熱帶植物環繞的小島", "h": "參拜 6:00～日落", "a": "從宮崎機場約15分鐘"}, "青島でサーフィン": {"n": "在青島衝浪", "d": "縣內有名的海灘，也有適合初學者的水上活動", "h": null, "a": "從宮崎機場約15分鐘"}, "宮崎神宮": {"n": "宮崎神宮", "d": "供奉初代天皇神武天皇的神社", "h": null, "a": null}, "幸せの黄色いポスト": {"n": "幸福的黃色郵筒", "d": "黃色的郵筒", "h": null, "a": null}, "宮崎市の チキン南蛮": {"n": "宮崎市的雞肉南蠻", "d": "宮崎的名產料理", "h": null, "a": null}, "地鶏の 炭火焼": {"n": "炭火烤地雞", "d": "用炭火烤宮崎的地雞", "h": null, "a": null}, "西都原古墳群": {"n": "西都原古墳群", "d": "有許多古墳", "h": "このはな館 9:00～17:00", "a": "從宮崎機場約1小時"}, "都萬神社": {"n": "都萬神社", "d": "神社", "h": null, "a": null}, "鵜戸神宮": {"n": "鵜戶神宮", "d": "本殿位於海邊的洞窟中，可體驗投擲運玉", "h": "開門 6:00～18:00", "a": "從宮崎機場約45分鐘"}, "サンメッセ日南": {"n": "日南太陽訊息園區（サンメッセ日南）", "d": "摩艾像，夕陽與大海很美", "h": "9:30～17:00（週三休）", "a": "到鵜戶神宮約15分鐘"}, "飫肥城下町": {"n": "飫肥城下町", "d": "可以邊走邊吃的城下町", "h": null, "a": "從鵜戶神宮約30分鐘"}, "猪八重渓谷": {"n": "豬八重溪谷", "d": "有20多座瀑布的溪谷，也有足湯", "h": null, "a": null}, "カツオの 炙り重": {"n": "炙烤鰹魚重", "d": "鰹魚料理", "h": null, "a": null}, "都井岬": {"n": "都井岬", "d": "可以看到野生馬", "h": "開門 4～9月 8:30～18:00／10～3月 8:00～17:30", "a": "從宮崎機場約1小時30分鐘"}, "幸島": {"n": "幸島", "d": "以猴子聞名的島，需搭船前往", "h": null, "a": "從道之驛なんごう約20分鐘"}, "恋ヶ浦でサーフィン": {"n": "在戀之浦衝浪", "d": "縣內人氣的衝浪地點", "h": null, "a": null}};
+  var ZH_TAG = { '自然': '自然', '歴史': '歷史', '神話': '神話', '体験': '體驗', '食': '美食', '温泉': '溫泉', '買い物': '購物', '祭り': '祭典' };
+  var ZH_AREA = { n: ['縣北', '延岡市、日向市 等'], c: ['縣央', '宮崎市、西都市（含青島）'], s: ['縣南', '日南市、串間市'] };
+  var ZH_CITY = { '延岡市': '延岡市', '日向市': '日向市', '高千穂町(県北の 山)': '高千穗町（縣北山區）', '宮崎市': '宮崎市', '西都市': '西都市', '日南市': '日南市', '串間市': '串間市' };
+  function isZh() { var w = document.querySelector('.wrap'); return w && w.getAttribute('data-lang') === 'zh'; }
+  function T(ja, zh) { return isZh() ? zh : ja; }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function stayOf(it) { return it.s != null ? it.s : DEFAULT_STAY[it.t]; }
 
   var areasEl = document.getElementById('areas');
   var html = '';
+  function B(j, z) { return '<span class="ja">' + j + '</span><span class="zh" lang="zh-Hant">' + z + '</span>'; }
   DATA.forEach(function (a) {
-    html += '<section class="area ' + a.cls + '"><div class="area-head"><h3>' + a.name + '</h3><span class="cnt" data-cnt="' + a.id + '">0 か所</span></div><p class="cities">' + a.cities + '</p>';
+    html += '<section class="area ' + a.cls + '"><div class="area-head"><h3>' + B(a.name, ZH_AREA[a.id][0]) + '</h3><span class="cnt" data-cnt="' + a.id + '">0 か所</span></div><p class="cities">' + B(a.cities, ZH_AREA[a.id][1]) + '</p>';
     a.groups.forEach(function (g) {
-      html += '<div class="city">' + esc(g.city) + '</div>';
-      if (g.note) html += '<p class="note-mtn">' + esc(g.note) + '</p>';
+      html += '<div class="city">' + B(esc(g.city), esc(ZH_CITY[g.city] || g.city)) + '</div>';
       g.items.forEach(function (it) {
-        byName[it.n] = it;
-        var meta = '<span class="pmeta">滞在の めやす <b>' + stayOf(it) + '分</b>' + (it.src ? '' : '(仮)') + '</span>';
-        if (it.a) meta += '<span class="pmeta">道のり: ' + esc(it.a) + '</span>';
-        if (it.h) meta += '<span class="pmeta">営業: ' + esc(it.h) + '</span>';
+        var z = ZH[it.n] || { n: it.n, d: it.d, h: null, a: null };
+        byName[it.n] = it; byName[z.n] = it;
+        var st = stayOf(it);
+        var meta = '<span class="pmeta">' + B('滞在の めやす <b>' + st + '分</b>' + (it.src ? '' : '(仮)'), '建議停留 <b>' + st + ' 分鐘</b>' + (it.src ? '' : '（暫定）')) + '</span>';
+        if (it.a) meta += '<span class="pmeta">' + B('道のり: ' + esc(it.a), '路程：' + esc(z.a || it.a)) + '</span>';
+        if (it.h) meta += '<span class="pmeta">' + B('営業: ' + esc(it.h), '營業：' + esc(z.h || it.h)) + '</span>';
         html += '<label class="place"><input type="checkbox" data-area="' + a.id + '" data-name="' + esc(it.n) + '">' +
-          '<span><span class="pname">' + esc(it.n) + '</span><br><span class="pdesc"><span class="tag">' + esc(it.t) + '</span>' + esc(it.d) + '</span>' + meta + '</span></label>';
+          '<span><span class="pname">' + B(esc(it.n), esc(z.n)) + '</span><br><span class="pdesc"><span class="tag">' + B(esc(it.t), esc(ZH_TAG[it.t] || it.t)) + '</span>' + B(esc(it.d), esc(z.d)) + '</span>' + meta + '</span></label>';
       });
     });
     html += '</section>';
@@ -356,16 +375,16 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
       b.parentNode.classList.toggle('on', b.checked);
       if (b.checked) { per[b.getAttribute('data-area')]++; all++; names.push(b.getAttribute('data-name')); }
     });
-    Object.keys(per).forEach(function (k) { var c = areasEl.querySelector('[data-cnt="' + k + '"]'); if (c) c.textContent = per[k] + ' か所'; });
-    totalEl.textContent = 'えらんだ 数 ' + all;
-    datalist.innerHTML = names.map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
+    Object.keys(per).forEach(function (k) { var c = areasEl.querySelector('[data-cnt="' + k + '"]'); if (c) c.textContent = per[k] + T(' か所', ' 處'); });
+    totalEl.textContent = T('えらんだ 数 ' + all, '已選 ' + all + ' 個');
+    datalist.innerHTML = names.map(function (n) { var z = ZH[n]; return '<option value="' + esc(n) + '"' + (isZh() && z ? ' label="' + esc(z.n) + '"' : '') + '>'; }).join('');
   }
   areasEl.addEventListener('change', refreshPicked);
   refreshPicked();
 
   /* 時刻の計算 */
   function fmt(m) { m = Math.round(m); var h = Math.floor(m / 60), r = m % 60; return h + ':' + (r < 10 ? '0' : '') + r; }
-  function dur(m) { m = Math.max(0, Math.round(m)); var h = Math.floor(m / 60), r = m % 60; return h ? h + '時間' + (r ? r + '分' : '') : r + '分'; }
+  function dur(m) { m = Math.max(0, Math.round(m)); var h = Math.floor(m / 60), r = m % 60; if (isZh()) return h ? h + ' 小時' + (r ? ' ' + r + ' 分鐘' : '') : r + ' 分鐘'; return h ? h + '時間' + (r ? r + '分' : '') : r + '分'; }
   function parseTime(v, dflt) { var p = /^(\d{1,2}):(\d{2})$/.exec(v || ''); return p ? (+p[1]) * 60 + (+p[2]) : dflt; }
   function num(v) { var n = parseFloat(v); return n > 0 ? n : 0; }
 
@@ -400,9 +419,9 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
       tr.querySelector('.arr').textContent = (move || stay || name) ? fmt(arr) : '–';
       tr.querySelector('.dep').textContent = (move || stay || name) ? fmt(dep) : '–';
       var info = tr.querySelector('.info'), warn = tr.querySelector('.warn'), msgs = [];
-      info.textContent = it && it.h ? '営業: ' + it.h : '';
-      if (it && it.o != null && (move || stay) && arr < it.o) msgs.push('まだ 開いて いません(' + fmt(it.o) + 'から)');
-      if (it && it.c != null && (move || stay) && dep > it.c) msgs.push(fmt(it.c) + 'に 閉まります');
+      info.textContent = it && it.h ? T('営業: ' + it.h, '營業：' + ((ZH[it.n] && ZH[it.n].h) || it.h)) : '';
+      if (it && it.o != null && (move || stay) && arr < it.o) msgs.push(T('まだ 開いて いません(' + fmt(it.o) + 'から)', '尚未開放（' + fmt(it.o) + ' 起）'));
+      if (it && it.c != null && (move || stay) && dep > it.c) msgs.push(T(fmt(it.c) + 'に 閉まります', fmt(it.c) + ' 關閉'));
       warn.textContent = msgs.join(' / ');
       t = dep;
     });
@@ -411,7 +430,7 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
     var used = home - start, left = avail - used, over = left < 0;
     document.getElementById('n-avail').textContent = dur(avail);
     document.getElementById('n-used').textContent = dur(used);
-    document.getElementById('n-left').textContent = over ? dur(-left) + ' オーバー' : dur(left);
+    document.getElementById('n-left').textContent = over ? dur(-left) + T(' オーバー', ' 超時') : dur(left);
     document.getElementById('n-left-wrap').classList.toggle('over', over);
     var meter = document.getElementById('meter');
     meter.classList.toggle('over', over);
@@ -447,6 +466,7 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
     var i = 0;
     Array.prototype.forEach.call(planEl.querySelectorAll('tr.stop'), function (tr) {
       var place = tr.querySelector('.f-place').value.trim(), memo = tr.querySelector('.f-memo').value.trim();
+      if (byName[place]) place = byName[place].n;
       var move = num(tr.querySelector('.f-move').value), stay = num(tr.querySelector('.f-stay').value);
       if (!place && !move && !stay && !memo) return;
       i++;
@@ -462,7 +482,7 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
   }
   subBtn.addEventListener('click', function (e) {
     refreshMail();
-    setStatus('メールの アプリが ひらきます。ひらかない ときは、下の「メールが ひらかない とき」を ひらいてください。', 'ok');
+    setStatus(T('メールの アプリが ひらきます。ひらかない ときは、下の「メールが ひらかない とき」を ひらいてください。', '郵件App會自動開啟。若沒有開啟，請展開下方的「郵件App打不開時」。'), 'ok');
   });
   subBtn.addEventListener('focus', refreshMail);
   subBtn.addEventListener('pointerdown', refreshMail);
@@ -470,9 +490,23 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
   refreshMail();
   document.getElementById('sub-copy').addEventListener('click', async function () {
     refreshMail();
-    try { await navigator.clipboard.writeText(codeEl.value); setStatus('コピーしました。', 'ok'); }
-    catch (e) { codeEl.select(); setStatus('文を 選びました。コピーして ください。'); }
+    try { await navigator.clipboard.writeText(codeEl.value); setStatus(T('コピーしました。', '已複製。'), 'ok'); }
+    catch (e) { codeEl.select(); setStatus(T('文を 選びました。コピーして ください。', '已選取文字，請自行複製。')); }
   });
+
+  /* ===== 言語の切り替え ===== */
+  var wrapEl = document.querySelector('.wrap');
+  function setLang(l, save) {
+    wrapEl.setAttribute('data-lang', l);
+    document.documentElement.lang = l === 'zh' ? 'zh-Hant' : 'ja';
+    Array.prototype.forEach.call(document.querySelectorAll('.langbar button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-l') === l ? 'true' : 'false'); });
+    refreshPicked(); recalc(); setStatus('');
+    if (save) { try { localStorage.setItem('miyazaki-lang', l); } catch (e) {} }
+  }
+  Array.prototype.forEach.call(document.querySelectorAll('.langbar button'), function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-l'), true); }); });
+  var qLang = (/[?&]lang=(ja|zh)/.exec(location.search) || [])[1], saved = null;
+  try { saved = localStorage.getItem('miyazaki-lang'); } catch (e) {}
+  setLang(qLang || (saved === 'zh' ? 'zh' : 'ja'), false);
 })();
 </script>
 
