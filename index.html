@@ -170,6 +170,20 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 .langbar button:first-child { border-radius: 999px 0 0 999px; } .langbar button:last-child { border-radius: 0 999px 999px 0; border-left: 0; }
 .langbar button[aria-pressed="true"] { background: var(--green-ink); color: var(--paper); border-color: var(--green-ink); }
 @media print { .langbar { display: none; } }
+
+.wrap.entrance main.paper > *:not(.langbar):not(#entrance) { display: none; }
+.wrap:not(.entrance) #entrance { display: none; }
+.ent-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+.ent { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ink); border-radius: 14px; padding: 22px 16px; min-height: 140px; justify-content: center; text-align: center; border: 2px solid transparent; }
+.ent b { font: 800 28px var(--font-head); }
+.ent span { font-size: 14px; color: var(--muted); }
+.ent.n { background: var(--green-tint); } .ent.n b { color: var(--green-ink); }
+.ent.c { background: var(--orange-tint); } .ent.c b { color: var(--orange-ink); }
+.ent.s { background: var(--blue-tint); } .ent.s b { color: var(--blue-ink); }
+.ent:hover, .ent:focus-visible { border-color: var(--ink); }
+.back { margin: 0 0 8px; font-size: 14px; }
+.back a { color: var(--blue-ink); font-weight: 700; }
+@media (max-width: 640px) { .ent-grid { grid-template-columns: 1fr; } .ent { min-height: 100px; } }
 </style>
 </head>
 <body>
@@ -177,6 +191,17 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 <div class="wrap" data-lang="ja">
   <main class="paper">
     <div class="langbar" role="group" aria-label="言語 / 語言"><button type="button" data-l="ja" aria-pressed="true">日本語</button><button type="button" data-l="zh" aria-pressed="false">繁體中文</button></div>
+    <div id="entrance">
+      <h1><span class="ja"><span class="g">宮崎</span>の 1日プランを 作ろう</span><span class="zh" lang="zh-Hant">來規劃<span class="g">宮崎</span>一日行程吧</span></h1>
+      <p class="sub"><span class="ja">まず エリアを 1つ えらびます。エリアごとに 入力します。</span><span class="zh" lang="zh-Hant">請先選擇一個地區。每個地區分開輸入。</span></p>
+      <div class="ent-grid">
+        <a class="ent n" data-a="n" href="?area=n"><b><span class="ja">県北</span><span class="zh" lang="zh-Hant">縣北</span></b><span><span class="ja">延岡市・日向市 ほか</span><span class="zh" lang="zh-Hant">延岡市、日向市 等</span></span></a>
+        <a class="ent c" data-a="c" href="?area=c"><b><span class="ja">県央</span><span class="zh" lang="zh-Hant">縣央</span></b><span><span class="ja">宮崎市・西都市(青島を 含む)</span><span class="zh" lang="zh-Hant">宮崎市、西都市（含青島）</span></span></a>
+        <a class="ent s" data-a="s" href="?area=s"><b><span class="ja">県南</span><span class="zh" lang="zh-Hant">縣南</span></b><span><span class="ja">日南市・串間市</span><span class="zh" lang="zh-Hant">日南市、串間市</span></span></a>
+      </div>
+    </div>
+    <p class="back" id="back-link"><a href="?" id="back-a"><span class="ja">← エリアを えらびなおす</span><span class="zh" lang="zh-Hant">← 重新選擇地區</span></a></p>
+
     <h1><span class="ja"><span class="g">宮崎</span>の どこへ 行く?<span class="o"> 1日プランを 作ろう</span></span><span class="zh" lang="zh-Hant"><span class="g">宮崎</span>要去哪裡？<span class="o">來規劃一日行程吧</span></span></h1>
     <p class="sub"><span class="ja">県北・県央・県南から、行きたい 場所を えらびます。えらぶ 数に 制限は ありません。ただし、旅行の 1日には 時間の 限りが あります。時間が ゆるす かぎり えらんで、プランに しましょう。</span><span class="zh" lang="zh-Hant">從縣北、縣央、縣南選出想去的地方。選擇的數量沒有限制，但旅行的一天時間有限。請在時間允許的範圍內盡量選，排成行程吧。</span></p>
 
@@ -584,6 +609,18 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
   var _setLang = setLang;
   setLang = function (l, save) { _setLang(l, save); if (openKey) { var k = openKey; openKey = null; openChooser(k); } renderSay(); };
   renderSay();
+
+  /* ===== エリアの 入口 ===== */
+  if (!AREA_Q) { document.querySelector('.wrap').classList.add('entrance'); }
+  var backP = document.getElementById('back-link'); if (!AREA_Q) backP.hidden = true;
+  function updateLinks() {
+    var l = isZh() ? 'zh' : 'ja';
+    Array.prototype.forEach.call(document.querySelectorAll('.ent'), function (a) { a.setAttribute('href', '?area=' + a.getAttribute('data-a') + '&lang=' + l); });
+    document.getElementById('back-a').setAttribute('href', '?lang=' + l);
+  }
+  var _setLang2 = setLang;
+  setLang = function (l, save) { _setLang2(l, save); updateLinks(); };
+  updateLinks();
 })();
 </script>
 
