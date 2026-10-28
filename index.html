@@ -133,7 +133,16 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
 .say { background: var(--green-tint); border-radius: 10px; padding: 12px 16px; margin: 10px 0; }
 .say .lead { font-size: 13px; font-weight: 700; color: var(--green-ink); }
 .say p { margin: 4px 0; }
-.u { display: inline-block; min-width: 7.5em; border-bottom: 2px solid var(--ink); height: 1.1em; vertical-align: -2px; margin: 0 2px; }
+.u { display: inline-block; min-width: 7.5em; max-width: 100%; font: 700 inherit var(--font-body); font-size: 15px; color: var(--ink); background: var(--paper); border: 0; border-bottom: 2px solid var(--ink); border-radius: 6px 6px 0 0; padding: 2px 8px; margin: 2px; cursor: pointer; text-align: left; vertical-align: baseline; }
+.u:empty::before { content: attr(data-ph); color: var(--muted); font-weight: 400; }
+.u[aria-expanded="true"] { background: var(--orange-tint); border-bottom-color: var(--orange); }
+.chooser { background: var(--orange-tint); border-radius: 10px; padding: 10px 12px; margin: 8px 0; }
+.chooser-lead { margin: 0 0 6px; font-size: 13px; font-weight: 700; color: var(--orange-ink); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-b { font: 500 15px var(--font-body); color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 999px; padding: 6px 14px; cursor: pointer; min-height: 36px; }
+.chip-b.on { border-color: var(--green-ink); background: var(--green-tint); font-weight: 700; }
+.chip-b.dim { color: var(--muted); }
+.chip-b.clear { border-style: dashed; color: var(--muted); }
 .map { display: flex; align-items: center; gap: 12px; }
 .map input { width: 22px; height: 22px; accent-color: var(--green); flex: none; }
 .submit-box { background: var(--blue-tint); border-radius: 12px; padding: 14px 16px; margin-top: 10px; }
@@ -256,9 +265,13 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
     <section class="step" aria-labelledby="h-step3">
       <div class="step-head"><span class="badge"><span class="ja">ステップ3</span><span class="zh" lang="zh-Hant">步驟3</span></span><h2 id="h-step3"><span class="ja">クラスに 話そう</span><span class="zh" lang="zh-Hant">向全班發表</span></h2><span class="who"><span class="ja">1チーム 30秒くらい</span><span class="zh" lang="zh-Hant">每組約30秒</span></span></div>
       <div class="say"><span class="lead"><span class="ja">話す 型</span><span class="zh" lang="zh-Hant">發表句型</span></span>
-        <p><span class="ja">私たちは <span class="u"></span> エリアに 行きます。</span><span class="zh" lang="zh-Hant">我們要去 <span class="u"></span> 地區。</span></p>
-        <p><span class="ja">まず <span class="u"></span> に 行って、<span class="u"></span> を 食べます。</span><span class="zh" lang="zh-Hant">首先去 <span class="u"></span>，然後吃 <span class="u"></span>。</span></p>
-        <p><span class="ja">そのあと <span class="u"></span> に 行きます。</span><span class="zh" lang="zh-Hant">接著去 <span class="u"></span>。</span></p>
+        <p><span class="ja">私たちは <button type="button" class="u" data-k="area" aria-haspopup="true" aria-expanded="false"></button> エリアに 行きます。</span><span class="zh" lang="zh-Hant">我們要去 <button type="button" class="u" data-k="area" aria-haspopup="true" aria-expanded="false"></button> 地區。</span></p>
+        <p><span class="ja">まず <button type="button" class="u" data-k="p1" aria-haspopup="true" aria-expanded="false"></button> に 行って、<button type="button" class="u" data-k="food" aria-haspopup="true" aria-expanded="false"></button> を 食べます。</span><span class="zh" lang="zh-Hant">首先去 <button type="button" class="u" data-k="p1" aria-haspopup="true" aria-expanded="false"></button>，然後吃 <button type="button" class="u" data-k="food" aria-haspopup="true" aria-expanded="false"></button>。</span></p>
+        <p><span class="ja">そのあと <button type="button" class="u" data-k="p2" aria-haspopup="true" aria-expanded="false"></button> に 行きます。</span><span class="zh" lang="zh-Hant">接著去 <button type="button" class="u" data-k="p2" aria-haspopup="true" aria-expanded="false"></button>。</span></p>
+      </div>
+      <div class="chooser" id="chooser" hidden>
+        <p class="chooser-lead" id="chooser-lead"></p>
+        <div class="chips" id="chips"></div>
       </div>
       <label class="map"><input type="checkbox" id="map-saved"> <span><span class="ja">プランに 入れた 場所を、Googleマップに 保存した</span><span class="zh" lang="zh-Hant">已把行程中的地點存到Google地圖</span></span></label>
     </section>
@@ -496,17 +509,68 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
 
   /* ===== 言語の切り替え ===== */
   var wrapEl = document.querySelector('.wrap');
-  function setLang(l, save) {
+  var setLang = function (l, save) {
     wrapEl.setAttribute('data-lang', l);
     document.documentElement.lang = l === 'zh' ? 'zh-Hant' : 'ja';
     Array.prototype.forEach.call(document.querySelectorAll('.langbar button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-l') === l ? 'true' : 'false'); });
     refreshPicked(); recalc(); setStatus('');
     if (save) { try { localStorage.setItem('miyazaki-lang', l); } catch (e) {} }
-  }
+  };
   Array.prototype.forEach.call(document.querySelectorAll('.langbar button'), function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-l'), true); }); });
   var qLang = (/[?&]lang=(ja|zh)/.exec(location.search) || [])[1], saved = null;
   try { saved = localStorage.getItem('miyazaki-lang'); } catch (e) {}
   setLang(qLang || (saved === 'zh' ? 'zh' : 'ja'), false);
+
+  /* ===== ステップ3: 話す 型を タップで つくる ===== */
+  var say = { area: null, p1: null, food: null, p2: null };
+  var chooserEl = document.getElementById('chooser'), chipsEl = document.getElementById('chips'), leadEl = document.getElementById('chooser-lead');
+  var openKey = null;
+  function nameOf(it) { return isZh() ? ((ZH[it.n] && ZH[it.n].n) || it.n) : it.n; }
+  function areaName(id) { var a = DATA.filter(function (x) { return x.id === id; })[0]; return a ? (isZh() ? ZH_AREA[id][0] : a.name) : ''; }
+  function renderSay() {
+    Array.prototype.forEach.call(document.querySelectorAll('.u'), function (b) {
+      var k = b.getAttribute('data-k'), v = say[k];
+      b.setAttribute('data-ph', T('▼ えらぶ', '▼ 請選擇'));
+      b.textContent = v == null ? '' : (k === 'area' ? areaName(v) : (byName[v] ? nameOf(byName[v]) : v));
+      b.setAttribute('aria-expanded', openKey === k ? 'true' : 'false');
+    });
+  }
+  function checkedNames() {
+    var r = {};
+    Array.prototype.forEach.call(areasEl.querySelectorAll('input[type="checkbox"]'), function (b) { if (b.checked) r[b.getAttribute('data-name')] = 1; });
+    return r;
+  }
+  function closeChooser() { openKey = null; chooserEl.hidden = true; renderSay(); }
+  function openChooser(k) {
+    if (openKey === k) { closeChooser(); return; }
+    openKey = k;
+    var chk = checkedNames(), all = [];
+    DATA.forEach(function (a) { a.groups.forEach(function (g) { g.items.forEach(function (it) { all.push(it); }); }); });
+    var opts = [];
+    if (k === 'area') {
+      DATA.forEach(function (a) { opts.push({ v: a.id, label: areaName(a.id), on: say.area === a.id, dim: false }); });
+      leadEl.textContent = T('エリアを えらぼう', '請選擇地區');
+    } else {
+      var pool = all.filter(function (it) { return k === 'food' ? it.t === '食' : it.t !== '食'; });
+      pool.sort(function (a, b) { return (chk[b.n] ? 1 : 0) - (chk[a.n] ? 1 : 0); });
+      pool.forEach(function (it) { opts.push({ v: it.n, label: nameOf(it), on: say[k] === it.n, dim: !chk[it.n] }); });
+      leadEl.textContent = k === 'food' ? T('食べる ものを えらぼう(ステップ1で チェックした ものが 先に 出ます)', '請選擇想吃的料理（步驟1勾選的會排在前面）') : T('行く 場所を えらぼう(ステップ1で チェックした 場所が 先に 出ます)', '請選擇要去的地點（步驟1勾選的會排在前面）');
+    }
+    chipsEl.innerHTML = opts.map(function (o, i) { return '<button type="button" class="chip-b' + (o.on ? ' on' : '') + (o.dim ? ' dim' : '') + '" data-i="' + i + '">' + esc(o.label) + '</button>'; }).join('') + '<button type="button" class="chip-b clear" data-i="-1">' + T('空にする', '清除') + '</button>';
+    chipsEl._opts = opts;
+    chooserEl.hidden = false; renderSay();
+  }
+  chipsEl.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || openKey == null) return;
+    var i = +b.getAttribute('data-i');
+    say[openKey] = i < 0 ? null : chipsEl._opts[i].v;
+    closeChooser();
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.u'), function (b) { b.addEventListener('click', function () { openChooser(b.getAttribute('data-k')); }); });
+  /* 言語を かえたら 表示を 作り直す */
+  var _setLang = setLang;
+  setLang = function (l, save) { _setLang(l, save); if (openKey) { var k = openKey; openKey = null; openChooser(k); } renderSay(); };
+  renderSay();
 })();
 </script>
 
