@@ -144,6 +144,7 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
 #sub-code { width: 100%; height: 5.5em; font: 12px/1.4 monospace; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 8px; padding: 8px; margin-top: 6px; }
 .rep { font-weight: 700; color: var(--blue-ink); }
 
+.areas.one { grid-template-columns: 1fr; }
 @media (max-width: 900px) { .areas { grid-template-columns: 1fr; } .guide-grid { grid-template-columns: 1fr; } }
 @media (max-width: 640px) { .team { grid-template-columns: 1fr; } .day .cond { margin-left: 0; } }
 @media print { .row-actions .btn { display: none; } body { padding: 0; background: #fff; } }
@@ -318,6 +319,9 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
       ]}
     ]}
   ];
+  /* ?area=n|c|s で 1エリアだけ 表示(紙の QR 用) */
+  var AREA_Q = (/[?&]area=([ncs])/.exec(location.search) || [])[1];
+  if (AREA_Q) DATA = DATA.filter(function (a) { return a.id === AREA_Q; });
 
   var byName = {};
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
@@ -342,6 +346,7 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
     html += '</section>';
   });
   areasEl.innerHTML = html;
+  if (AREA_Q) areasEl.classList.add('one');
 
   var totalEl = document.getElementById('total');
   var datalist = document.getElementById('picked');
