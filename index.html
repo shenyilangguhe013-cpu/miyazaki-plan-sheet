@@ -112,7 +112,9 @@ details.guide summary { font: 800 15px var(--font-head); cursor: pointer; paddin
 .guide dl { margin: 0; display: grid; grid-template-columns: 1fr auto; gap: 2px 12px; font-size: 14px; }
 .guide dt { min-width: 0; } .guide dd { margin: 0; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .guide .small { grid-column: 1 / -1; }
-#tt .scroll { margin: 6px 0 4px; }
+#tt .scroll { margin: 6px 0 4px; -webkit-overflow-scrolling: touch; }
+.sc-hint { display: none; margin: 4px 0 0; }
+@media (max-width: 700px) { .sc-hint { display: block; } }
 .ttm { border-collapse: collapse; font-size: 13px; width: auto; min-width: 0; }
 .ttm th, .ttm td { border: 1px solid var(--line); padding: 3px 6px; text-align: center; font-variant-numeric: tabular-nums; }
 .ttm thead th { font-weight: 800; padding: 4px 6px; }
@@ -251,6 +253,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 
       <details class="guide" open id="tt">
         <summary><span class="ja">車での 移動時間(すい定)</span><span class="zh" lang="zh-Hant">開車移動時間（推估）</span></summary>
+        <p class="small sc-hint"><span class="ja">← 表は 横に スクロールできます →</span><span class="zh" lang="zh-Hant">← 表格可左右滑動 →</span></p>
         <div id="tt-body"></div>
       </details>
 
@@ -536,10 +539,8 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
     var used = home - start, left = avail - used, over = left < 0;
     document.getElementById('n-avail').textContent = dur(avail);
     document.getElementById('n-used').textContent = dur(used);
-    document.getElementById('n-left').textContent = over ? dur(-left) + T(' オーバー', ' 超時') : dur(left);
-    document.getElementById('n-left-wrap').classList.toggle('over', over);
+    document.getElementById('n-left').textContent = dur(Math.max(0, left));
     var meter = document.getElementById('meter');
-    meter.classList.toggle('over', over);
     document.getElementById('meter-bar').style.width = Math.min(100, Math.max(0, used / avail * 100)) + '%';
   }
 
@@ -689,6 +690,43 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
   var _setLang2 = setLang;
   setLang = function (l, save) { _setLang2(l, save); updateLinks(); };
   updateLinks();
+
+  /* ===== 自動ほぞん(このブラウザの中だけ) ===== */
+  var SKEY = 'miyazaki-state-' + (AREA_Q || 'all');
+  function saveState() {
+    try {
+      var st = { t0: startEl.value, t1: endEl.value, map: document.getElementById('map-saved').checked, say: say, back: [backMove.value, backMove.dataset.auto === '1' ? 1 : 0], chk: [], rows: [] };
+      Array.prototype.forEach.call(areasEl.querySelectorAll('input[type="checkbox"]'), function (b) { if (b.checked) st.chk.push(b.getAttribute('data-name')); });
+      Array.prototype.forEach.call(planEl.querySelectorAll('tr.stop'), function (tr) {
+        var mv = tr.querySelector('.f-move');
+        st.rows.push([tr.querySelector('.f-place').value, mv.value, mv.dataset.auto === '1' ? 1 : 0, tr.querySelector('.f-stay').value, tr.querySelector('.f-memo').value]);
+      });
+      localStorage.setItem(SKEY, JSON.stringify(st));
+    } catch (e) {}
+  }
+  (function restoreState() {
+    var st = null;
+    try { st = JSON.parse(localStorage.getItem(SKEY) || 'null'); } catch (e) {}
+    if (!st) return;
+    try {
+      if (st.t0) startEl.value = st.t0; if (st.t1) endEl.value = st.t1;
+      document.getElementById('map-saved').checked = !!st.map;
+      if (st.say) ['area', 'p1', 'food', 'p2'].forEach(function (k) { say[k] = st.say[k] == null ? null : st.say[k]; });
+      Array.prototype.forEach.call(areasEl.querySelectorAll('input[type="checkbox"]'), function (b) { b.checked = (st.chk || []).indexOf(b.getAttribute('data-name')) >= 0; });
+      refreshPicked();
+      var rows = st.rows || [];
+      while (planEl.querySelectorAll('tr.stop').length < rows.length) addRow();
+      Array.prototype.forEach.call(planEl.querySelectorAll('tr.stop'), function (tr, i) {
+        var r = rows[i]; if (!r) return;
+        var mv = tr.querySelector('.f-move');
+        tr.querySelector('.f-place').value = r[0]; mv.value = r[1]; tr.querySelector('.f-stay').value = r[3]; tr.querySelector('.f-memo').value = r[4];
+        if (r[2] && r[1] !== '') { mv.dataset.auto = '1'; tr.querySelector('.mvn').innerHTML = MV_NOTE; }
+      });
+      if (st.back) { backMove.value = st.back[0]; if (st.back[1] && st.back[0] !== '') { backMove.dataset.auto = '1'; document.getElementById('back-note').innerHTML = MV_NOTE; } }
+      recalc(); renderSay();
+    } catch (e) {}
+  })();
+  ['input', 'change', 'click'].forEach(function (ev) { document.addEventListener(ev, function () { setTimeout(saveState, 0); }); });
 })();
 </script>
 
