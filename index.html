@@ -176,7 +176,8 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 .ent-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
 .ent { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: var(--ink); border-radius: 14px; padding: 22px 16px; min-height: 140px; justify-content: center; text-align: center; border: 2px solid transparent; }
 .ent b { font: 800 28px var(--font-head); }
-.ent span { font-size: 14px; color: var(--muted); }
+.ent > span { font-size: 14px; color: var(--muted); }
+.ent > span span { font-size: inherit; color: inherit; }
 .ent.n { background: var(--green-tint); } .ent.n b { color: var(--green-ink); }
 .ent.c { background: var(--orange-tint); } .ent.c b { color: var(--orange-ink); }
 .ent.s { background: var(--blue-tint); } .ent.s b { color: var(--blue-ink); }
