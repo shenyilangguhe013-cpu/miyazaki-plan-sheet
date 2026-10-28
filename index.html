@@ -148,6 +148,9 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
 .submit-box { background: var(--blue-tint); border-radius: 12px; padding: 14px 16px; margin-top: 10px; }
 .btn.primary { display: inline-block; text-decoration: none; background: var(--blue-ink); color: var(--paper); border-color: var(--blue-ink); font-size: 17px; padding: 12px 28px; }
 .btn.primary:disabled { opacity: .6; }
+code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border: 1px solid var(--line); border-radius: 6px; padding: 2px 8px; user-select: all; overflow-wrap: anywhere; }
+.addr { margin: 8px 0 0; font-size: 14px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+#submit-gmail { text-decoration: none; display: inline-block; }
 #sub-status { font-weight: 700; margin: 10px 0 0; min-height: 1.5em; }
 #sub-status.ok { color: var(--green-ink); } #sub-status.ng { color: var(--red); }
 #sub-code { width: 100%; height: 5.5em; font: 12px/1.4 monospace; color: var(--ink); background: var(--paper); border: 1.5px solid var(--line); border-radius: 8px; padding: 8px; margin-top: 6px; }
@@ -281,12 +284,13 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
     <section class="step" aria-labelledby="h-step4">
       <div class="step-head"><span class="badge o"><span class="ja">ステップ4</span><span class="zh" lang="zh-Hant">步驟4</span></span><h2 id="h-step4"><span class="ja">先生に 提出しよう</span><span class="zh" lang="zh-Hant">提交給老師</span></h2><span class="who"><span class="ja">代表の 人が 1回 おす</span><span class="zh" lang="zh-Hant">由代表按一次</span></span></div>
       <div class="submit-box">
-        <p><span class="ja"><span class="rep">代表の 人</span>が、ボタンを おしてください。メールの アプリが ひらくので、そのまま 送信します。</span><span class="zh" lang="zh-Hant">請由<span class="rep">代表</span>按下按鈕。郵件App會自動開啟，直接寄出即可。</span></p>
-        <a class="btn primary" id="submit" href="#" role="button"><span class="ja">メールで 先生に 送る</span><span class="zh" lang="zh-Hant">用電子郵件寄給老師</span></a>
+        <p><span class="ja"><span class="rep">代表の 人</span>が、下の ボタンの どちらかを おして、メールを 送ります。</span><span class="zh" lang="zh-Hant">請由<span class="rep">代表</span>按下下方任一按鈕，寄出郵件。</span></p>
+        <div class="row"><a class="btn primary" id="submit" href="#" role="button"><span class="ja">メールアプリで 送る</span><span class="zh" lang="zh-Hant">用郵件App寄出</span></a><a class="btn" id="submit-gmail" href="#" target="_blank" rel="noopener" role="button"><span class="ja">Gmail(ブラウザ)で ひらく</span><span class="zh" lang="zh-Hant">用Gmail網頁版開啟</span></a></div>
+        <p class="addr"><span class="ja">送り先:</span><span class="zh" lang="zh-Hant">收件人：</span> <code id="to-addr"></code> <button class="btn small" id="addr-copy" type="button"><span class="ja">コピー</span><span class="zh" lang="zh-Hant">複製</span></button></p>
         <p id="sub-status" role="status" aria-live="polite"></p>
         <details id="sub-fallback">
-          <summary><span class="ja">メールが ひらかない とき</span><span class="zh" lang="zh-Hant">郵件App打不開時</span></summary>
-          <p class="small"><span class="ja">下の 文を コピーして、メールか LINE で 先生に 送ってください。</span><span class="zh" lang="zh-Hant">請複製下面的文字，用電子郵件或LINE傳給老師。</span></p>
+          <summary><span class="ja">ボタンで ひらかない とき</span><span class="zh" lang="zh-Hant">按鈕打不開時</span></summary>
+          <p class="small"><span class="ja">「送り先」を コピーして、下の 文を メールの 本文に はって 送ってください(LINE でも OK)。</span><span class="zh" lang="zh-Hant">請複製上方「收件人」，並把下面的文字貼到郵件內文後寄出（也可以用LINE傳送）。</span></p>
           <textarea id="sub-code" readonly aria-label="提出する 文"></textarea>
           <div class="row-actions"><button class="btn" id="sub-copy" type="button"><span class="ja">文を コピー</span><span class="zh" lang="zh-Hant">複製文字</span></button></div>
         </details>
@@ -468,7 +472,7 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
   /* ===== 提出(メール) ===== */
   var TO = 'shenyilangguhe013@gmail.com';
   var AREA = { n: '県北', c: '県央', s: '県南' };
-  var subBtn = document.getElementById('submit'), statusEl = document.getElementById('sub-status'), codeEl = document.getElementById('sub-code'), fbEl = document.getElementById('sub-fallback');
+  var gmBtn = document.getElementById('submit-gmail'), subBtn = document.getElementById('submit'), statusEl = document.getElementById('sub-status'), codeEl = document.getElementById('sub-code'), fbEl = document.getElementById('sub-fallback');
   function setStatus(msg, cls) { statusEl.textContent = msg; statusEl.className = cls || ''; }
   function buildText() {
     var L = ['【宮崎プラン】', '', '■ 行きたい 場所'];
@@ -494,12 +498,19 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
     var text = buildText();
     codeEl.value = text;
     subBtn.href = 'mailto:' + TO + '?subject=' + encodeURIComponent('【宮崎プラン】') + '&body=' + encodeURIComponent(text);
+    gmBtn.href = 'https://mail.google.com/mail/?view=cm&fs=1&to=' + encodeURIComponent(TO) + '&su=' + encodeURIComponent('【宮崎プラン】') + '&body=' + encodeURIComponent(text);
   }
   subBtn.addEventListener('click', function (e) {
     refreshMail();
-    setStatus(T('メールの アプリが ひらきます。ひらかない ときは、下の「メールが ひらかない とき」を ひらいてください。', '郵件App會自動開啟。若沒有開啟，請展開下方的「郵件App打不開時」。'), 'ok');
+    setStatus(T('メールの アプリが ひらきます。ひらかない ときは、「Gmail(ブラウザ)で ひらく」か、下の「ボタンで ひらかない とき」を 使ってください。', '郵件App會自動開啟。若沒有開啟，請改按「用Gmail網頁版開啟」，或展開下方的「按鈕打不開時」。'), 'ok');
   });
   subBtn.addEventListener('focus', refreshMail);
+  gmBtn.addEventListener('focus', refreshMail); gmBtn.addEventListener('pointerdown', refreshMail);
+  document.getElementById('to-addr').textContent = TO;
+  document.getElementById('addr-copy').addEventListener('click', async function () {
+    try { await navigator.clipboard.writeText(TO); setStatus(T('送り先を コピーしました。', '已複製收件人。'), 'ok'); }
+    catch (e) { var r = document.createRange(); r.selectNodeContents(document.getElementById('to-addr')); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); setStatus(T('送り先を 選びました。コピーして ください。', '已選取收件人，請自行複製。')); }
+  });
   subBtn.addEventListener('pointerdown', refreshMail);
   fbEl.addEventListener('toggle', function () { if (fbEl.open) refreshMail(); });
   refreshMail();
