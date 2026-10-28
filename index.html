@@ -356,7 +356,7 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
       b.parentNode.classList.toggle('on', b.checked);
       if (b.checked) { per[b.getAttribute('data-area')]++; all++; names.push(b.getAttribute('data-name')); }
     });
-    Object.keys(per).forEach(function (k) { areasEl.querySelector('[data-cnt="' + k + '"]').textContent = per[k] + ' か所'; });
+    Object.keys(per).forEach(function (k) { var c = areasEl.querySelector('[data-cnt="' + k + '"]'); if (c) c.textContent = per[k] + ' か所'; });
     totalEl.textContent = 'えらんだ 数 ' + all;
     datalist.innerHTML = names.map(function (n) { return '<option value="' + esc(n) + '">'; }).join('');
   }
