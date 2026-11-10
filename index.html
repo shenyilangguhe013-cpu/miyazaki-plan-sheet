@@ -446,7 +446,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
   ];
   /* 宮崎県観光協会の めやすと 同じ 区間(●) */
   var TT_SRC = [['AIR','青島 (青島神社・鬼の洗濯板)'],['AIR','鵜戸神宮'],['AIR','西都原古墳群'],['AIR','願いが叶うクルスの海'],['AIR','都井岬'],['願いが叶うクルスの海','馬ヶ背'],['サンメッセ日南','鵜戸神宮'],['鵜戸神宮','飫肥城下町'],['幸島','都井岬']];
-  var TT_UNSURE = { '都農ワイナリー': 1, '綾の照葉大吊橋': 1, '延岡の 川で カヌー(小川)': 1, '日向松島の シーカヤック': 1, '西都の うなぎ 入船': 1, 'お倉ヶ浜でサーフィン': 1, '恋ヶ浦でサーフィン': 1, '猪八重渓谷': 1, '幸島': 1 };
+  var TT_UNSURE = {};
   var TT = (function () {
     var idx = {}, names = [], INF = 1e9;
     function id(n) { if (!(n in idx)) { idx[n] = names.length; names.push(n); } return idx[n]; }
@@ -467,7 +467,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
   function isSrc(a, b) { return TT_SRC.some(function (p) { return (p[0] === a && p[1] === b) || (p[0] === b && p[1] === a); }); }
   function shortN(s) { return s.replace(/\s*[\(（].*$/, ''); }
   (function renderTT() {
-    var h = '<div class="ttleg"><span><i style="background:rgba(60,160,90,.22)"></i>' + B('〜15分', '〜15 分鐘') + '</span><span><i style="background:rgba(230,190,40,.25)"></i>' + B('〜45分', '〜45 分鐘') + '</span><span><i style="background:rgba(235,130,40,.28)"></i>' + B('〜75分', '〜75 分鐘') + '</span><span><i style="background:rgba(215,60,60,.28)"></i>' + B('76分〜', '76 分鐘以上') + '</span><span>' + B('● 観光協会の めやす / <sup>?</sup> 位置が あいまい', '● 觀光協會的參考時間 / <sup>?</sup> 位置不太確定') + '</span></div>';
+    var h = '<div class="ttleg"><span><i style="background:rgba(60,160,90,.22)"></i>' + B('〜15分', '〜15 分鐘') + '</span><span><i style="background:rgba(230,190,40,.25)"></i>' + B('〜45分', '〜45 分鐘') + '</span><span><i style="background:rgba(235,130,40,.28)"></i>' + B('〜75分', '〜75 分鐘') + '</span><span><i style="background:rgba(215,60,60,.28)"></i>' + B('76分〜', '76 分鐘以上') + '</span><span>' + B('● 観光協会の めやす', '● 觀光協會的參考時間') + '</span></div>';
     DATA.forEach(function (a) {
       var list = [{ n: AIRN, zn: '宮崎機場', air: true }];
       a.groups.forEach(function (g) { g.items.forEach(function (it) { var z = ZH[it.n] || { n: it.n }; list.push({ n: it.n, zn: z.n }); }); });
