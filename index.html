@@ -180,10 +180,12 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 .ja, .zh { }
 .wrap[data-lang="ja"] .zh { display: none !important; }
 .wrap[data-lang="zh"] .ja { display: none !important; }
+.wrap[data-lang="en"] .ja, .wrap[data-lang="en"] .zh { display: none !important; }
+.wrap:not([data-lang="en"]) .en { display: none !important; }
 .wrap[data-lang="zh"] { font-family: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", var(--font-body); }
 .langbar { display: flex; justify-content: flex-end; gap: 0; margin: 0 0 10px; }
 .langbar button { font: 700 13px var(--font-body); color: var(--ink); background: transparent; border: 1.5px solid var(--line); padding: 5px 14px; cursor: pointer; }
-.langbar button:first-child { border-radius: 999px 0 0 999px; } .langbar button:last-child { border-radius: 0 999px 999px 0; border-left: 0; }
+.langbar button { border-radius: 0; } .langbar button + button { border-left: 0; } .langbar button:first-child { border-radius: 999px 0 0 999px; } .langbar button:last-child { border-radius: 0 999px 999px 0; }
 .langbar button[aria-pressed="true"] { background: var(--green-ink); color: var(--paper); border-color: var(--green-ink); }
 @media print { .langbar { display: none; } }
 
@@ -207,7 +209,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 
 <div class="wrap" data-lang="ja">
   <main class="paper">
-    <div class="langbar" role="group" aria-label="言語 / 語言"><button type="button" data-l="ja" aria-pressed="true">日本語</button><button type="button" data-l="zh" aria-pressed="false">繁體中文</button></div>
+    <div class="langbar" role="group" aria-label="言語 / 語言"><button type="button" data-l="ja" aria-pressed="true">日本語</button><button type="button" data-l="zh" aria-pressed="false">繁體中文</button><button type="button" data-l="en" aria-pressed="false">English</button></div>
     <div id="entrance">
       <h1><span class="ja"><span class="g">宮崎</span>の 1日プランを 作ろう</span><span class="zh" lang="zh-Hant">來規劃<span class="g">宮崎</span>一日行程吧</span></h1>
       <p class="sub"><span class="ja">まず エリアを 1つ えらびます。エリアごとに 入力します。</span><span class="zh" lang="zh-Hant">請先選擇一個地區。每個地區分開輸入。</span></p>
@@ -314,6 +316,57 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 
 <script>
 (function () {
+  var U = function (k) { return '<button type="button" class="u" data-k="' + k + '" aria-haspopup="true" aria-expanded="false"></button>'; };
+  var ENS = {
+    '宮崎の 1日プランを 作ろう': 'Let’s plan a one-day trip in <span class="g">Miyazaki</span>',
+    'まず エリアを 1つ えらびます。エリアごとに 入力します。': 'First, choose one area. You enter your plan area by area.',
+    '県北': '県北 (North)', '県央': '県央 (Central)', '県南': '県南 (South)',
+    '延岡市・日向市 ほか': 'Nobeoka, Hyuga, etc.',
+    '宮崎市・西都市・綾町・都農町(青島を 含む)': 'Miyazaki City, Saito, Aya, Tsuno (incl. Aoshima)',
+    '日南市・串間市': 'Nichinan, Kushima',
+    '← エリアを えらびなおす': '← Choose a different area',
+    '宮崎の どこへ 行く? 1日プランを 作ろう': 'Where in <span class="g">Miyazaki</span> will you go?<span class="o"> Make your one-day plan</span>',
+    '県北・県央・県南から、行きたい 場所を えらびます。えらぶ 数に 制限は ありません。ただし、旅行の 1日には 時間の 限りが あります。時間が ゆるす かぎり えらんで、プランに しましょう。': 'Choose the places you want to visit from the North, Central, and South areas. There is no limit on how many you choose, but one day of travel has limited time. Pick as many as your time allows and build your plan.',
+    '班の みんなで 相談しながら、1つの プランを 作ります。入力する 人は 代表の 人です。': '<b>As a group</b>, talk together and make one plan. The representative types it in.',
+    '旅行1日の 時間わく': 'Time for your one-day trip',
+    '宮崎空港を 出る': 'Leave Miyazaki Airport',
+    'もどる 時刻': 'Back at the airport',
+    'レンタカーで まわる 前提 ・ 宮崎空港が スタート': 'By rental car · Start at Miyazaki Airport',
+    '全部で': 'Total', 'つかった': 'Used', 'のこり': 'Left',
+    'ステップ1': 'Step 1', '行きたい ところに チェック': 'Check the places you want to go', 'いくつでも': 'As many as you like',
+    'ステップ2': 'Step 2', '1日の プランを 作ろう': 'Make your one-day plan', '時間の じゅんに ならべる': 'Put them in time order',
+    '車での 移動時間(すい定)': 'Driving time (estimate)',
+    '「どこ」は ステップ1で えらんだ 場所が 候補に 出ます。自分で 書いても OK。場所を えらぶと、「うごく 時間」と「いる 時間」に めやすが 入ります(直せます)。': 'The places you checked in Step 1 appear as suggestions in “Where”. You can also type your own. When you choose a place, a suggested travel time and stay time are filled in (you can change them).',
+    'どこ': 'Where',
+    'うごく 時間(分)前の 場所から': 'Travel (min)<br><span style="font-weight:400">from previous place</span>',
+    '着く': 'Arrive', 'いる 時間(分)': 'Stay (min)', '出る': 'Leave', 'メモ': 'Memo',
+    '宮崎空港 出発': 'Depart Miyazaki Airport', '宮崎空港へ もどる': 'Return to Miyazaki Airport',
+    '+ 行を ふやす': '+ Add a row',
+    '行は いくつでも ふやせます。昼ごはんも 1行 入れましょう。': 'Add as many rows as you need. Add one for lunch, too.',
+    'ステップ3': 'Step 3', 'クラスに 話そう': 'Tell the class', '1チーム 30秒くらい': 'About 30 seconds per team', '話す 型': 'Speech pattern',
+    '私たちは エリアに 行きます。': 'We will go to the ' + U('area') + ' area.',
+    'まず に 行って、 を 食べます。': 'First, we will go to ' + U('p1') + ' and eat ' + U('food') + '.',
+    'そのあと に 行きます。': 'After that, we will go to ' + U('p2') + '.',
+    'えらんだ ものを ぜんぶ とり消す': 'Clear all choices',
+    'プランに 入れた 場所を、Googleマップに 保存した': 'I saved the places in my plan to Google Maps',
+    'ステップ4': 'Step 4', '先生に 提出しよう': 'Submit to your teacher', '代表の 人が 1回 おす': 'The representative presses once',
+    '代表の 人が、下の ボタンの どちらかを おして、メールを 送ります。': 'The <span class="rep">representative</span> presses one of the buttons below to send an email.',
+    'メールアプリで 送る': 'Send with email app', 'Gmail(ブラウザ)で ひらく': 'Open in Gmail (browser)',
+    '送り先:': 'Send to:', 'コピー': 'Copy',
+    'ボタンで ひらかない とき': 'If the buttons do not open',
+    '「送り先」を コピーして、下の 文を メールの 本文に はって 送ってください(LINE でも OK)。': 'Copy the “Send to” address, paste the text below into the email body, and send (LINE is also OK).',
+    '文を コピー': 'Copy text'
+  };
+  Array.prototype.forEach.call(document.querySelectorAll('.zh'), function (z) {
+    var j = z.previousElementSibling;
+    if (!j || !j.classList.contains('ja')) return;
+    var k = j.textContent.replace(/\s+/g, ' ').trim();
+    var e = document.createElement('span');
+    e.className = 'en'; e.setAttribute('lang', 'en');
+    e.innerHTML = ENS[k] != null ? ENS[k] : j.innerHTML;
+    z.parentNode.insertBefore(e, z.nextSibling);
+  });
+
   /* 場所データ  n:名前 t:種類 d:説明 s:滞在の目安(分) src:公式モデルコースの時間なら true(なければ「仮」) h:営業時間 o/c:開く・閉まる(分) a:道のり */
   var DEFAULT_STAY = { '自然': 45, '歴史': 45, '神話': 45, '温泉': 60, '買い物': 20, '体験': 60, '食': 60, '祭り': 60 };
   var DATA = [
@@ -385,31 +438,74 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 
   var byName = {};
   var ZH = {"延岡の 元祖チキン南蛮": {"n": "延岡的元祖雞肉南蠻", "d": "不淋塔塔醬的元祖風格雞肉南蠻", "h": null, "a": null}, "メヒカリの 唐揚げ": {"n": "酥炸青眼魚", "d": "延岡的海鮮料理", "h": null, "a": null}, "馬ヶ背": {"n": "馬背", "d": "突出海面的斷崖", "h": "茶屋 4～9月 9:10～17:50／10～3月 8:40～17:20", "a": "從十字海約5分鐘"}, "願いが叶うクルスの海": {"n": "願望成真的十字海", "d": "海岸風景", "h": null, "a": "從宮崎機場約1小時20分鐘"}, "美々津の 町なみ": {"n": "美美津老街", "d": "漫步在古老的街景中", "h": null, "a": null}, "お倉ヶ浜でサーフィン": {"n": "在御倉濱衝浪", "d": "日本屈指的衝浪點，從初學者到高手都適合", "h": null, "a": null}, "高千穂峡": {"n": "高千穗峽", "d": "搭乘小船欣賞瀑布與自然風光", "h": "小船 8:30～17:00（最後受理 16:30）", "a": "從宮崎機場約2小時"}, "天岩戸神社": {"n": "天岩戶神社", "d": "供奉太陽神天照大御神，有巨大的洞窟", "h": "社務所 8:30～17:00", "a": "從道之驛青雲橋約20分鐘"}, "青島 (青島神社・鬼の洗濯板)": {"n": "青島（青島神社・鬼之洗衣板）", "d": "被亞熱帶植物環繞的小島", "h": "參拜 6:00～日落", "a": "從宮崎機場約15分鐘"}, "青島でサーフィン": {"n": "在青島衝浪", "d": "縣內有名的海灘，也有適合初學者的水上活動", "h": null, "a": "從宮崎機場約15分鐘"}, "宮崎神宮": {"n": "宮崎神宮", "d": "供奉初代天皇神武天皇的神社", "h": null, "a": null}, "幸せの黄色いポスト": {"n": "幸福的黃色郵筒", "d": "黃色的郵筒", "h": null, "a": null}, "宮崎市の チキン南蛮": {"n": "宮崎市的雞肉南蠻", "d": "宮崎的名產料理", "h": null, "a": null}, "地鶏の 炭火焼": {"n": "炭火烤地雞", "d": "用炭火烤宮崎的地雞", "h": null, "a": null}, "西都原古墳群": {"n": "西都原古墳群", "d": "有許多古墳", "h": "木花館（このはな館） 9:00～17:00", "a": "從宮崎機場約1小時"}, "都萬神社": {"n": "都萬神社", "d": "神社", "h": null, "a": null}, "鵜戸神宮": {"n": "鵜戶神宮", "d": "本殿位於海邊的洞窟中，可體驗投擲運玉", "h": "開門 6:00～18:00", "a": "從宮崎機場約45分鐘"}, "サンメッセ日南": {"n": "日南太陽訊息園區（サンメッセ日南）", "d": "摩艾石像，夕陽與大海很美", "h": "9:30～17:00（週三休）", "a": "到鵜戶神宮約15分鐘"}, "飫肥城下町": {"n": "飫肥城下町", "d": "可以邊走邊吃的城下町", "h": null, "a": "從鵜戶神宮約30分鐘"}, "猪八重渓谷": {"n": "豬八重溪谷", "d": "有20多座瀑布的溪谷，也有足湯", "h": null, "a": null}, "カツオの 炙り重": {"n": "炙烤鰹魚重", "d": "鰹魚料理", "h": null, "a": null}, "都井岬": {"n": "都井岬", "d": "可以看到野生馬", "h": "開門 4～9月 8:30～18:00／10～3月 8:00～17:30", "a": "從宮崎機場約1小時30分鐘"}, "幸島": {"n": "幸島", "d": "以猴子聞名的島，需搭船前往", "h": null, "a": "從道之驛南鄉約20分鐘"}, "恋ヶ浦でサーフィン": {"n": "在戀之浦衝浪", "d": "縣內人氣的衝浪地點", "h": null, "a": null}, "延岡の 川で カヌー(小川)": {"n": "延岡的河川獨木舟（小川）", "d": "乘獨木舟遊覽被稱為「奇蹟清流」的小川", "h": null, "a": "位於北川町，需預約"}, "日向松島の シーカヤック": {"n": "日向松島海上獨木舟", "d": "划海上獨木舟繞行海上的小島", "h": null, "a": "需預約"}, "宮崎牛の 焼肉": {"n": "宮崎牛燒肉", "d": "聞名世界的品牌和牛", "h": null, "a": null}, "冷や汁": {"n": "冷汁（冷や汁）", "d": "淋在白飯上吃的冰涼鄉土料理", "h": null, "a": null}, "完熟マンゴーの スイーツ": {"n": "完熟芒果甜點", "d": "代表南國宮崎的水果", "h": null, "a": null}, "青島で SUP": {"n": "在青島玩SUP（立槳）", "d": "站在板上用槳前進的水上活動", "h": null, "a": "從宮崎機場約15分鐘"}, "西都の うなぎ 入船": {"n": "西都的鰻魚「入船」", "d": "用備長炭燒烤的鰻魚，附呉汁（大豆味噌湯）", "h": "11:00～14:30／16:00～20:00（不定休）", "a": null}, "都井岬の 野生馬ガイド": {"n": "都井岬野生馬導覽", "d": "跟著導遊去看野生馬", "h": null, "a": "需預約"}, "延岡の 辛麺": {"n": "延岡辣麵（辛麺）", "d": "有著鮮紅辣湯的延岡在地拉麵", "h": null, "a": null}, "高千穂の 流しそうめん": {"n": "高千穗的流水素麵", "d": "從竹製水道流下來的素麵，自己撈起來吃", "h": "10:00～16:00", "a": null}, "飫肥天(おびてん)": {"n": "飫肥天（おびてん）", "d": "用魚漿油炸而成的飫肥名產，適合邊走邊吃", "h": null, "a": null}, "綾の照葉大吊橋": {"n": "綾的照葉大吊橋", "d": "長250公尺、高142公尺的大型吊橋", "h": "8:30～17:00（夏季到 18:00）", "a": "從宮崎西IC開車約30分鐘"}, "都農ワイナリー": {"n": "都農葡萄酒莊", "d": "參觀釀造過程並試飲（20歲以上）", "h": "9:30～17:00（不定休）", "a": "從都農IC開車約15分鐘"}};
+  var EN_TAG = { '自然': 'Nature', '歴史': 'History', '神話': 'Myth', '体験': 'Activity', '食': 'Food', '温泉': 'Hot spring', '買い物': 'Shopping', '祭り': 'Festival' };
+  var EN_AREA = { n: ['県北 (North)', 'Nobeoka, Hyuga, etc.'], c: ['県央 (Central)', 'Miyazaki City, Saito, Aya, Tsuno (incl. Aoshima)'], s: ['県南 (South)', 'Nichinan, Kushima'] };
+  var EN_CITY = { '延岡市': 'Nobeoka City', '日向市': 'Hyuga City', '高千穂町(県北の 山)': 'Takachiho (northern mountains)', '宮崎市': 'Miyazaki City', '西都市': 'Saito City', '綾町': 'Aya Town', '都農町': 'Tsuno Town', '日南市': 'Nichinan City', '串間市': 'Kushima City' };
+  var ENI = {
+    '延岡の 元祖チキン南蛮': { n: 'Nobeoka original chicken nanban', d: 'The original style of chicken nanban, without tartar sauce' },
+    'メヒカリの 唐揚げ': { n: 'Fried mehikari', d: 'Nobeoka seafood: fried greeneye fish' },
+    '延岡の 川で カヌー(小川)': { n: 'Canoeing on the Ogawa River', d: 'Paddle down the Ogawa, called a “miracle clear stream”', a: 'In Kitagawa Town. Reservation needed' },
+    '延岡の 辛麺': { n: 'Nobeoka karamen', d: 'Local noodles in a red, spicy soup' },
+    '馬ヶ背': { n: 'Umagase', d: 'A sea cliff jutting into the ocean', h: 'Tea house Apr–Sep 9:10–17:50 / Oct–Mar 8:40–17:20', a: 'About 5 min from Cruz no Umi' },
+    '願いが叶うクルスの海': { n: 'Cruz no Umi', d: 'Coastal scenery', a: 'About 1 h 20 min from Miyazaki Airport' },
+    '美々津の 町なみ': { n: 'Mimitsu old townscape', d: 'Walk through an old townscape' },
+    'お倉ヶ浜でサーフィン': { n: 'Surfing at Okuragahama', d: 'One of the top surf spots in Japan, for beginners to experts' },
+    '日向松島の シーカヤック': { n: 'Sea kayaking at Hyuga Matsushima', d: 'Kayak around small islands floating in the sea', a: 'Reservation needed' },
+    '高千穂峡': { n: 'Takachiho Gorge', d: 'Take a boat to see waterfalls and nature', h: 'Boats 8:30–17:00 (last entry 16:30)', a: 'About 2 h from Miyazaki Airport' },
+    '天岩戸神社': { n: 'Amanoiwato Shrine', d: 'Enshrines the sun goddess Amaterasu. A large cave', h: 'Office 8:30–17:00', a: 'About 20 min from Michi-no-Eki Seiun-bashi' },
+    '高千穂の 流しそうめん': { n: 'Nagashi somen, Takachiho', d: 'Catch noodles flowing down a bamboo flume and eat them', h: '10:00–16:00' },
+    '青島 (青島神社・鬼の洗濯板)': { n: 'Aoshima: Shrine & Devil’s Washboard', d: 'A small island surrounded by subtropical plants', h: 'Worship 6:00–sunset', a: 'About 15 min from Miyazaki Airport' },
+    '青島でサーフィン': { n: 'Surfing at Aoshima', d: 'A famous beach in the prefecture. Beginner-friendly water sports, too', a: 'About 15 min from Miyazaki Airport' },
+    '宮崎神宮': { n: 'Miyazaki Shrine', d: 'A shrine for Emperor Jimmu, the first emperor' },
+    '幸せの黄色いポスト': { n: 'Yellow mailbox of happiness', d: 'A yellow mailbox' },
+    '宮崎市の チキン南蛮': { n: 'Chicken nanban', d: 'A signature dish of Miyazaki' },
+    '地鶏の 炭火焼': { n: 'Charcoal-grilled jidori chicken', d: 'Local chicken grilled over charcoal' },
+    '宮崎牛の 焼肉': { n: 'Miyazaki beef yakiniku', d: 'A beef brand known worldwide' },
+    '冷や汁': { n: 'Hiyajiru', d: 'A cold local soup poured over rice' },
+    '完熟マンゴーの スイーツ': { n: 'Ripe mango sweets', d: 'A fruit that represents tropical Miyazaki' },
+    '青島で SUP': { n: 'SUP at Aoshima', d: 'Stand on a board and paddle across the water', a: 'About 15 min from Miyazaki Airport' },
+    '西都原古墳群': { n: 'Saitobaru Burial Mounds', d: 'Many ancient burial mounds', h: 'Konohana-kan 9:00–17:00', a: 'About 1 h from Miyazaki Airport' },
+    '都萬神社': { n: 'Tsuma Shrine', d: 'A shrine' },
+    '西都の うなぎ 入船': { n: 'Unagi Irifune, Saito', d: 'Eel grilled over binchotan charcoal, served with gojiru', h: '11:00–14:30 / 16:00–20:00 (irregular holidays)' },
+    '都農ワイナリー': { n: 'Tsuno Winery', d: 'Tour the wine-making process and taste wine (age 20+)', h: '9:30–17:00 (irregular holidays)', a: 'About 15 min by car from Tsuno IC' },
+    '綾の照葉大吊橋': { n: 'Aya Teruha Suspension Bridge', d: 'A huge suspension bridge, 250 m long and 142 m high', h: '8:30–17:00 (until 18:00 in summer)', a: 'About 30 min by car from Miyazaki-nishi IC' },
+    '鵜戸神宮': { n: 'Udo Shrine', d: 'Main hall inside a seaside cave. Throw lucky balls (undama)', h: 'Gate open 6:00–18:00', a: 'About 45 min from Miyazaki Airport' },
+    'サンメッセ日南': { n: 'Sun Messe Nichinan', d: 'Moai statues. Beautiful sunsets and sea', h: '9:30–17:00 (closed Wed)', a: 'About 15 min to Udo Shrine' },
+    '飫肥城下町': { n: 'Obi Castle Town', d: 'A castle town for walking and snacking', a: 'About 30 min from Udo Shrine' },
+    '猪八重渓谷': { n: 'Inohae Valley', d: 'A valley with over 20 waterfalls. Foot bath, too' },
+    '飫肥天(おびてん)': { n: 'Obiten', d: 'Fried fish paste, a specialty of Obi. Great for walking and snacking' },
+    'カツオの 炙り重': { n: 'Seared bonito rice bowl', d: 'A bonito dish' },
+    '都井岬': { n: 'Cape Toi', d: 'See wild horses', h: 'Gate Apr–Sep 8:30–18:00 / Oct–Mar 8:00–17:30', a: 'About 1 h 30 min from Miyazaki Airport' },
+    '幸島': { n: 'Kojima Island', d: 'An island known for its monkeys. Go by boat', a: 'About 20 min from Michi-no-Eki Nango' },
+    '恋ヶ浦でサーフィン': { n: 'Surfing at Koigaura', d: 'A popular surf spot in the prefecture' },
+    '都井岬の 野生馬ガイド': { n: 'Wild horse guide at Cape Toi', d: 'Go see wild horses with a guide', a: 'Reservation needed' }
+  };
   var ZH_TAG = { '自然': '自然', '歴史': '歷史', '神話': '神話', '体験': '體驗', '食': '美食', '温泉': '溫泉', '買い物': '購物', '祭り': '祭典' };
   var ZH_AREA = { n: ['縣北', '延岡市、日向市 等'], c: ['縣央', '宮崎市、西都市、綾町、都農町（含青島）'], s: ['縣南', '日南市、串間市'] };
   var ZH_CITY = { '延岡市': '延岡市', '日向市': '日向市', '高千穂町(県北の 山)': '高千穗町（縣北山區）', '宮崎市': '宮崎市', '西都市': '西都市', '綾町': '綾町', '都農町': '都農町', '日南市': '日南市', '串間市': '串間市' };
   function isZh() { var w = document.querySelector('.wrap'); return w && w.getAttribute('data-lang') === 'zh'; }
-  function T(ja, zh) { return isZh() ? zh : ja; }
+  function isEn() { var w = document.querySelector('.wrap'); return w && w.getAttribute('data-lang') === 'en'; }
+  function T(ja, zh, en) { return isEn() ? (en === undefined ? ja : en) : (isZh() ? zh : ja); }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
   function stayOf(it) { return it.s != null ? it.s : DEFAULT_STAY[it.t]; }
 
   var areasEl = document.getElementById('areas');
   var html = '';
-  function B(j, z) { return '<span class="ja">' + j + '</span><span class="zh" lang="zh-Hant">' + z + '</span>'; }
+  function B(j, z, e) { return '<span class="ja">' + j + '</span><span class="zh" lang="zh-Hant">' + z + '</span><span class="en" lang="en">' + (e === undefined ? j : e) + '</span>'; }
   DATA.forEach(function (a) {
-    html += '<section class="area ' + a.cls + '"><div class="area-head"><h3>' + B(a.name, ZH_AREA[a.id][0]) + '</h3><span class="cnt" data-cnt="' + a.id + '">0 か所</span></div><p class="cities">' + B(a.cities, ZH_AREA[a.id][1]) + '</p>';
+    html += '<section class="area ' + a.cls + '"><div class="area-head"><h3>' + B(a.name, ZH_AREA[a.id][0], EN_AREA[a.id][0]) + '</h3><span class="cnt" data-cnt="' + a.id + '">0 か所</span></div><p class="cities">' + B(a.cities, ZH_AREA[a.id][1], EN_AREA[a.id][1]) + '</p>';
     a.groups.forEach(function (g) {
-      html += '<div class="city">' + B(esc(g.city), esc(ZH_CITY[g.city] || g.city)) + '</div>';
+      html += '<div class="city">' + B(esc(g.city), esc(ZH_CITY[g.city] || g.city), esc(EN_CITY[g.city] || g.city)) + '</div>';
       g.items.forEach(function (it) {
-        var z = ZH[it.n] || { n: it.n, d: it.d, h: null, a: null };
+        var z = ZH[it.n] || { n: it.n, d: it.d, h: null, a: null }; var e = ENI[it.n] || { n: '', d: it.d, h: null, a: null };
         byName[it.n] = it; byName[z.n] = it;
         var st = stayOf(it);
-        var meta = '<span class="pmeta">' + B('滞在の めやす <b>' + st + '分</b>' + (it.src ? '' : '(仮)'), '建議停留 <b>' + st + ' 分鐘</b>' + (it.src ? '' : '（暫定）')) + '</span>';
-        if (it.a) meta += '<span class="pmeta">' + B('道のり: ' + esc(it.a), '路程：' + esc(z.a || it.a)) + '</span>';
-        meta += '<a class="pmap" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('宮崎県 ' + it.n.replace(/\s*[\(（].*$/, '').replace(/でサーフィン$/, '').replace(/\s+/g, '')) + '">' + B('地図で 見る', '在地圖上查看') + '</a>';
-        if (it.h) meta += '<span class="pmeta">' + B('営業: ' + esc(it.h), '營業：' + esc(z.h || it.h)) + '</span>';
+        var meta = '<span class="pmeta">' + B('滞在の めやす <b>' + st + '分</b>' + (it.src ? '' : '(仮)'), '建議停留 <b>' + st + ' 分鐘</b>' + (it.src ? '' : '（暫定）'), 'Suggested stay <b>' + st + ' min</b>' + (it.src ? '' : ' (est.)')) + '</span>';
+        if (it.a) meta += '<span class="pmeta">' + B('道のり: ' + esc(it.a), '路程：' + esc(z.a || it.a), 'Route: ' + esc(e.a || it.a)) + '</span>';
+        meta += '<a class="pmap" target="_blank" rel="noopener" href="https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent('宮崎県 ' + it.n.replace(/\s*[\(（].*$/, '').replace(/でサーフィン$/, '').replace(/\s+/g, '')) + '">' + B('地図で 見る', '在地圖上查看', 'View on map') + '</a>';
+        if (it.h) meta += '<span class="pmeta">' + B('営業: ' + esc(it.h), '營業：' + esc(z.h || it.h), 'Hours: ' + esc(e.h || it.h)) + '</span>';
         html += '<label class="place"><input type="checkbox" data-area="' + a.id + '" data-name="' + esc(it.n) + '">' +
-          '<span><span class="pname">' + B(esc(it.n), esc(z.n)) + '</span><br><span class="pdesc"><span class="tag">' + B(esc(it.t), esc(ZH_TAG[it.t] || it.t)) + '</span>' + B(esc(it.d), esc(z.d)) + '</span>' + meta + '</span></label>';
+          '<span><span class="pname">' + B(esc(it.n), esc(z.n), esc(it.n) + ' <small style="font-weight:400;color:var(--muted)">' + esc(e.n) + '</small>') + '</span><br><span class="pdesc"><span class="tag">' + B(esc(it.t), esc(ZH_TAG[it.t] || it.t), esc(EN_TAG[it.t] || it.t)) + '</span>' + B(esc(it.d), esc(z.d), esc(e.d || it.d)) + '</span>' + meta + '</span></label>';
       });
     });
     html += '</section>';
@@ -425,9 +521,9 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
       b.parentNode.classList.toggle('on', b.checked);
       if (b.checked) { per[b.getAttribute('data-area')]++; all++; names.push(b.getAttribute('data-name')); }
     });
-    Object.keys(per).forEach(function (k) { var c = areasEl.querySelector('[data-cnt="' + k + '"]'); if (c) c.textContent = per[k] + T(' か所', ' 處'); });
-    totalEl.textContent = T('えらんだ 数 ' + all, '已選 ' + all + ' 個');
-    datalist.innerHTML = names.map(function (n) { var z = ZH[n]; return '<option value="' + esc(n) + '"' + (isZh() && z ? ' label="' + esc(z.n) + '"' : '') + '>'; }).join('');
+    Object.keys(per).forEach(function (k) { var c = areasEl.querySelector('[data-cnt="' + k + '"]'); if (c) c.textContent = per[k] + T(' か所', ' 處', ' places'); });
+    totalEl.textContent = T('えらんだ 数 ' + all, '已選 ' + all + ' 個', 'Selected: ' + all);
+    datalist.innerHTML = names.map(function (n) { var z = ZH[n], en = ENI[n]; return '<option value="' + esc(n) + '"' + (isEn() && en ? ' label="' + esc(en.n) + '"' : (isZh() && z ? ' label="' + esc(z.n) + '"' : '')) + '>'; }).join('');
   }
   areasEl.addEventListener('change', refreshPicked);
   refreshPicked();
@@ -467,15 +563,15 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
   function isSrc(a, b) { return TT_SRC.some(function (p) { return (p[0] === a && p[1] === b) || (p[0] === b && p[1] === a); }); }
   function shortN(s) { return s.replace(/\s*[\(（].*$/, ''); }
   (function renderTT() {
-    var h = '<div class="ttleg"><span><i style="background:rgba(60,160,90,.22)"></i>' + B('〜15分', '〜15 分鐘') + '</span><span><i style="background:rgba(230,190,40,.25)"></i>' + B('〜45分', '〜45 分鐘') + '</span><span><i style="background:rgba(235,130,40,.28)"></i>' + B('〜75分', '〜75 分鐘') + '</span><span><i style="background:rgba(215,60,60,.28)"></i>' + B('76分〜', '76 分鐘以上') + '</span><span>' + B('● 観光協会の めやす', '● 觀光協會的參考時間') + '</span></div>';
+    var h = '<div class="ttleg"><span><i style="background:rgba(60,160,90,.22)"></i>' + B('〜15分', '〜15 分鐘', 'up to 15 min') + '</span><span><i style="background:rgba(230,190,40,.25)"></i>' + B('〜45分', '〜45 分鐘', 'up to 45 min') + '</span><span><i style="background:rgba(235,130,40,.28)"></i>' + B('〜75分', '〜75 分鐘', 'up to 75 min') + '</span><span><i style="background:rgba(215,60,60,.28)"></i>' + B('76分〜', '76 分鐘以上', 'over 75 min') + '</span><span>' + B('● 観光協会の めやす', '● 觀光協會的參考時間', '● Tourism association estimate') + '</span></div>';
     DATA.forEach(function (a) {
-      var list = [{ n: AIRN, zn: '宮崎機場', air: true }];
-      a.groups.forEach(function (g) { g.items.forEach(function (it) { var z = ZH[it.n] || { n: it.n }; list.push({ n: it.n, zn: z.n }); }); });
-      h += '<div class="tth">' + B(esc(a.name) + 'の 場所どうし', esc(ZH_AREA[a.id][0]) + '：地點之間') + '</div><div class="scroll"><table class="ttm"><thead><tr><th></th>';
+      var list = [{ n: AIRN, zn: '宮崎機場', en: 'Miyazaki Airport', air: true }];
+      a.groups.forEach(function (g) { g.items.forEach(function (it) { var z = ZH[it.n] || { n: it.n }; list.push({ n: it.n, zn: z.n, en: (ENI[it.n] || {}).n || '' }); }); });
+      h += '<div class="tth">' + B(esc(a.name) + 'の 場所どうし', esc(ZH_AREA[a.id][0]) + '：地點之間', esc(EN_AREA[a.id][0]) + ': between places') + '</div><div class="scroll"><table class="ttm"><thead><tr><th></th>';
       list.forEach(function (x, i) { h += '<th>' + (i + 1) + '</th>'; });
       h += '</tr></thead><tbody>';
       list.forEach(function (r, ri) {
-        h += '<tr><th>' + (ri + 1) + '. ' + B(esc(shortN(r.n)), esc(shortN(r.zn))) + (TT_UNSURE[r.n] ? '<sup>?</sup>' : '') + '</th>';
+        h += '<tr><th>' + (ri + 1) + '. ' + B(esc(shortN(r.n)), esc(shortN(r.zn)), esc(shortN(r.n)) + (r.en ? ' <small>' + esc(r.en) + '</small>' : '')) + (TT_UNSURE[r.n] ? '<sup>?</sup>' : '') + '</th>';
         list.forEach(function (c) {
           if (r.n === c.n) { h += '<td class="self">–</td>'; return; }
           var m = tm(r.n, c.n), k = m <= 15 ? 'k1' : m <= 45 ? 'k2' : m <= 75 ? 'k3' : 'k4';
@@ -513,7 +609,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
 
   /* 時刻の計算 */
   function fmt(m) { m = Math.round(m); var h = Math.floor(m / 60), r = m % 60; return h + ':' + (r < 10 ? '0' : '') + r; }
-  function dur(m) { m = Math.max(0, Math.round(m)); var h = Math.floor(m / 60), r = m % 60; if (isZh()) return h ? h + ' 小時' + (r ? ' ' + r + ' 分鐘' : '') : r + ' 分鐘'; return h ? h + '時間' + (r ? r + '分' : '') : r + '分'; }
+  function dur(m) { m = Math.max(0, Math.round(m)); var h = Math.floor(m / 60), r = m % 60; if (isEn()) return h ? h + ' h' + (r ? ' ' + r + ' min' : '') : r + ' min'; if (isZh()) return h ? h + ' 小時' + (r ? ' ' + r + ' 分鐘' : '') : r + ' 分鐘'; return h ? h + '時間' + (r ? r + '分' : '') : r + '分'; }
   function parseTime(v, dflt) { var p = /^(\d{1,2}):(\d{2})$/.exec(v || ''); return p ? (+p[1]) * 60 + (+p[2]) : dflt; }
   function num(v) { var n = parseFloat(v); return n > 0 ? n : 0; }
 
@@ -550,9 +646,9 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
       tr.querySelector('.arr').textContent = (move || stay || name) ? fmt(arr) : '–';
       tr.querySelector('.dep').textContent = (move || stay || name) ? fmt(dep) : '–';
       var info = tr.querySelector('.info'), warn = tr.querySelector('.warn'), msgs = [];
-      info.textContent = it && it.h ? T('営業: ' + it.h, '營業：' + ((ZH[it.n] && ZH[it.n].h) || it.h)) : '';
-      if (it && it.o != null && (move || stay) && arr < it.o) msgs.push(T('まだ 開いて いません(' + fmt(it.o) + 'から)', '尚未開放（' + fmt(it.o) + ' 起）'));
-      if (it && it.c != null && (move || stay) && dep > it.c) msgs.push(T(fmt(it.c) + 'に 閉まります', fmt(it.c) + ' 關閉'));
+      info.textContent = it && it.h ? T('営業: ' + it.h, '營業：' + ((ZH[it.n] && ZH[it.n].h) || it.h), 'Hours: ' + ((ENI[it.n] && ENI[it.n].h) || it.h)) : '';
+      if (it && it.o != null && (move || stay) && arr < it.o) msgs.push(T('まだ 開いて いません(' + fmt(it.o) + 'から)', '尚未開放（' + fmt(it.o) + ' 起）', 'Not open yet (opens ' + fmt(it.o) + ')'));
+      if (it && it.c != null && (move || stay) && dep > it.c) msgs.push(T(fmt(it.c) + 'に 閉まります', fmt(it.c) + ' 關閉', 'Closes at ' + fmt(it.c)));
       warn.textContent = msgs.join(' / ');
       t = dep;
     });
@@ -617,48 +713,48 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
   }
   subBtn.addEventListener('click', function (e) {
     refreshMail();
-    setStatus(T('メールの アプリが ひらきます。ひらかない ときは、「Gmail(ブラウザ)で ひらく」か、下の「ボタンで ひらかない とき」を 使ってください。', '郵件App會自動開啟。若沒有開啟，請改按「用Gmail網頁版開啟」，或展開下方的「按鈕打不開時」。'), 'ok');
+    setStatus(T('メールの アプリが ひらきます。ひらかない ときは、「Gmail(ブラウザ)で ひらく」か、下の「ボタンで ひらかない とき」を 使ってください。', '郵件App會自動開啟。若沒有開啟，請改按「用Gmail網頁版開啟」，或展開下方的「按鈕打不開時」。', 'Your email app will open. If it does not, use “Open in Gmail (browser)” or “If the buttons do not open” below.'), 'ok');
   });
   subBtn.addEventListener('focus', refreshMail);
   gmBtn.addEventListener('focus', refreshMail); gmBtn.addEventListener('pointerdown', refreshMail);
   document.getElementById('to-addr').textContent = TO;
   document.getElementById('addr-copy').addEventListener('click', async function () {
-    try { await navigator.clipboard.writeText(TO); setStatus(T('送り先を コピーしました。', '已複製收件人。'), 'ok'); }
-    catch (e) { var r = document.createRange(); r.selectNodeContents(document.getElementById('to-addr')); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); setStatus(T('送り先を 選びました。コピーして ください。', '已選取收件人，請自行複製。')); }
+    try { await navigator.clipboard.writeText(TO); setStatus(T('送り先を コピーしました。', '已複製收件人。', 'Address copied.'), 'ok'); }
+    catch (e) { var r = document.createRange(); r.selectNodeContents(document.getElementById('to-addr')); var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r); setStatus(T('送り先を 選びました。コピーして ください。', '已選取收件人，請自行複製。', 'Address selected. Please copy it.')); }
   });
   subBtn.addEventListener('pointerdown', refreshMail);
   fbEl.addEventListener('toggle', function () { if (fbEl.open) refreshMail(); });
   refreshMail();
   document.getElementById('sub-copy').addEventListener('click', async function () {
     refreshMail();
-    try { await navigator.clipboard.writeText(codeEl.value); setStatus(T('コピーしました。', '已複製。'), 'ok'); }
-    catch (e) { codeEl.select(); setStatus(T('文を 選びました。コピーして ください。', '已選取文字，請自行複製。')); }
+    try { await navigator.clipboard.writeText(codeEl.value); setStatus(T('コピーしました。', '已複製。', 'Copied.'), 'ok'); }
+    catch (e) { codeEl.select(); setStatus(T('文を 選びました。コピーして ください。', '已選取文字，請自行複製。', 'Text selected. Please copy it.')); }
   });
 
   /* ===== 言語の切り替え ===== */
   var wrapEl = document.querySelector('.wrap');
   var setLang = function (l, save) {
     wrapEl.setAttribute('data-lang', l);
-    document.documentElement.lang = l === 'zh' ? 'zh-Hant' : 'ja';
+    document.documentElement.lang = l === 'zh' ? 'zh-Hant' : (l === 'en' ? 'en' : 'ja');
     Array.prototype.forEach.call(document.querySelectorAll('.langbar button'), function (b) { b.setAttribute('aria-pressed', b.getAttribute('data-l') === l ? 'true' : 'false'); });
     refreshPicked(); recalc(); setStatus('');
     if (save) { try { localStorage.setItem('miyazaki-lang', l); } catch (e) {} }
   };
   Array.prototype.forEach.call(document.querySelectorAll('.langbar button'), function (b) { b.addEventListener('click', function () { setLang(b.getAttribute('data-l'), true); }); });
-  var qLang = (/[?&]lang=(ja|zh)/.exec(location.search) || [])[1], saved = null;
+  var qLang = (/[?&]lang=(ja|zh|en)/.exec(location.search) || [])[1], saved = null;
   try { saved = localStorage.getItem('miyazaki-lang'); } catch (e) {}
-  setLang(qLang || (saved === 'zh' ? 'zh' : 'ja'), false);
+  setLang(qLang || (saved === 'zh' || saved === 'en' ? saved : 'ja'), false);
 
   /* ===== ステップ3: 話す 型を タップで つくる ===== */
   var say = { area: null, p1: null, food: null, p2: null };
   var chooserEl = document.getElementById('chooser'), chipsEl = document.getElementById('chips'), leadEl = document.getElementById('chooser-lead');
   var openKey = null;
-  function nameOf(it) { return isZh() ? ((ZH[it.n] && ZH[it.n].n) || it.n) : it.n; }
-  function areaName(id) { var a = DATA.filter(function (x) { return x.id === id; })[0]; return a ? (isZh() ? ZH_AREA[id][0] : a.name) : ''; }
+  function nameOf(it) { if (isEn()) return it.n.replace(/\s*[\(（].*$/, '') + ' (' + ((ENI[it.n] && ENI[it.n].n) || '') + ')'; return isZh() ? ((ZH[it.n] && ZH[it.n].n) || it.n) : it.n; }
+  function areaName(id) { var a = DATA.filter(function (x) { return x.id === id; })[0]; return a ? (isEn() ? EN_AREA[id][0] : (isZh() ? ZH_AREA[id][0] : a.name)) : ''; }
   function renderSay() {
     Array.prototype.forEach.call(document.querySelectorAll('.u'), function (b) {
       var k = b.getAttribute('data-k'), v = say[k];
-      b.setAttribute('data-ph', T('▼ えらぶ', '▼ 請選擇'));
+      b.setAttribute('data-ph', T('▼ えらぶ', '▼ 請選擇', '▼ Choose'));
       b.textContent = v == null ? '' : (k === 'area' ? areaName(v) : (byName[v] ? nameOf(byName[v]) : v));
       b.setAttribute('aria-expanded', openKey === k ? 'true' : 'false');
     });
@@ -677,14 +773,14 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
     var opts = [];
     if (k === 'area') {
       DATA.forEach(function (a) { opts.push({ v: a.id, label: areaName(a.id), on: say.area === a.id, dim: false }); });
-      leadEl.textContent = T('エリアを えらぼう', '請選擇地區');
+      leadEl.textContent = T('エリアを えらぼう', '請選擇地區', 'Choose an area');
     } else {
       var pool = all.filter(function (it) { return k === 'food' ? it.t === '食' : it.t !== '食'; });
       pool.sort(function (a, b) { return (chk[b.n] ? 1 : 0) - (chk[a.n] ? 1 : 0); });
       pool.forEach(function (it) { opts.push({ v: it.n, label: nameOf(it), on: say[k] === it.n, dim: !chk[it.n] }); });
-      leadEl.textContent = k === 'food' ? T('食べる ものを えらぼう(ステップ1で チェックした ものが 先に 出ます)', '請選擇想吃的料理（步驟1勾選的會排在前面）') : T('行く 場所を えらぼう(ステップ1で チェックした 場所が 先に 出ます)', '請選擇要去的地點（步驟1勾選的會排在前面）');
+      leadEl.textContent = k === 'food' ? T('食べる ものを えらぼう(ステップ1で チェックした ものが 先に 出ます)', '請選擇想吃的料理（步驟1勾選的會排在前面）', 'Choose what to eat (places you checked in Step 1 come first)') : T('行く 場所を えらぼう(ステップ1で チェックした 場所が 先に 出ます)', '請選擇要去的地點（步驟1勾選的會排在前面）', 'Choose where to go (places you checked in Step 1 come first)');
     }
-    chipsEl.innerHTML = opts.map(function (o, i) { return '<button type="button" class="chip-b' + (o.on ? ' on' : '') + (o.dim ? ' dim' : '') + '" data-i="' + i + '">' + esc(o.label) + '</button>'; }).join('') + '<button type="button" class="chip-b clear" data-i="-1">' + T('とり消す', '取消選擇') + '</button>';
+    chipsEl.innerHTML = opts.map(function (o, i) { return '<button type="button" class="chip-b' + (o.on ? ' on' : '') + (o.dim ? ' dim' : '') + '" data-i="' + i + '">' + esc(o.label) + '</button>'; }).join('') + '<button type="button" class="chip-b clear" data-i="-1">' + T('とり消す', '取消選擇', 'Clear') + '</button>';
     chipsEl._opts = opts;
     chooserEl.hidden = false; renderSay();
   }
@@ -705,7 +801,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
   if (!AREA_Q) { document.querySelector('.wrap').classList.add('entrance'); }
   var backP = document.getElementById('back-link'); if (!AREA_Q) backP.hidden = true;
   function updateLinks() {
-    var l = isZh() ? 'zh' : 'ja';
+    var l = isEn() ? 'en' : (isZh() ? 'zh' : 'ja');
     Array.prototype.forEach.call(document.querySelectorAll('.ent'), function (a) { a.setAttribute('href', '?area=' + a.getAttribute('data-a') + '&lang=' + l); });
     document.getElementById('back-a').setAttribute('href', '?lang=' + l);
   }
