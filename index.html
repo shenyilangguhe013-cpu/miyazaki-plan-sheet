@@ -214,7 +214,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
     <h1><span class="ja"><span class="g">宮崎</span>の どこへ 行く?<span class="o"> 1日プランを 作ろう</span></span><span class="zh" lang="zh-Hant"><span class="g">宮崎</span>要去哪裡？<span class="o">來規劃一日行程吧</span></span></h1>
     <p class="sub"><span class="ja">県北・県央・県南から、行きたい 場所を えらびます。えらぶ 数に 制限は ありません。ただし、旅行の 1日には 時間の 限りが あります。時間が ゆるす かぎり えらんで、プランに しましょう。</span><span class="zh" lang="zh-Hant">從縣北、縣央、縣南選出想去的地方。選擇的數量沒有限制，但旅行的一天時間有限。請在時間允許的範圍內盡量選，排成行程吧。</span></p>
 
-    <p class="hint"><span class="ja"><b>班の みんなで</b> 相談しながら、1つの プランを 作ります。入力する 人は 代表の 人です。</span><span class="zh" lang="zh-Hant"><b>全組一起</b>討論，完成一份行程。由代表負責輸入。</span></p>
+    <p class="hint"><span class="ja"><b>班の みんなで</b> 相談しながら プランを 作ります。入力は、みんなが 自分の スマホで します。</span><span class="zh" lang="zh-Hant"><b>全組一起</b>討論，完成行程。每個人都用自己的手機輸入。</span></p>
 
     <section class="day" aria-label="旅行1日の時間わく">
       <div class="day-top">
@@ -288,9 +288,9 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
     </section>
 
     <section class="step" aria-labelledby="h-step4">
-      <div class="step-head"><span class="badge o"><span class="ja">ステップ4</span><span class="zh" lang="zh-Hant">步驟4</span></span><h2 id="h-step4"><span class="ja">先生に 提出しよう</span><span class="zh" lang="zh-Hant">提交給老師</span></h2><span class="who"><span class="ja">代表の 人が 1回 おす</span><span class="zh" lang="zh-Hant">由代表按一次</span></span></div>
+      <div class="step-head"><span class="badge o"><span class="ja">ステップ4</span><span class="zh" lang="zh-Hant">步驟4</span></span><h2 id="h-step4"><span class="ja">先生に 提出しよう</span><span class="zh" lang="zh-Hant">提交給老師</span></h2><span class="who"><span class="ja">1人 1回 おす</span><span class="zh" lang="zh-Hant">每人按一次</span></span></div>
       <div class="submit-box">
-        <p><span class="ja"><span class="rep">代表の 人</span>が、下の ボタンの どちらかを おして、メールを 送ります。</span><span class="zh" lang="zh-Hant">請由<span class="rep">代表</span>按下下方任一按鈕，寄出郵件。</span></p>
+        <p><span class="ja"><span class="rep">みんな</span>が、下の ボタンの どちらかを おして、メールを 送ります。</span><span class="zh" lang="zh-Hant">請<span class="rep">每個人</span>按下下方任一按鈕，寄出郵件。</span></p>
         <div class="row"><a class="btn primary" id="submit" href="#" role="button"><span class="ja">メールアプリで 送る</span><span class="zh" lang="zh-Hant">用郵件App寄出</span></a><a class="btn" id="submit-gmail" href="#" target="_blank" rel="noopener" role="button"><span class="ja">Gmail(ブラウザ)で ひらく</span><span class="zh" lang="zh-Hant">用Gmail網頁版開啟</span></a></div>
         <p class="addr"><span class="ja">送り先:</span><span class="zh" lang="zh-Hant">收件人：</span> <code id="to-addr"></code> <button class="btn small" id="addr-copy" type="button"><span class="ja">コピー</span><span class="zh" lang="zh-Hant">複製</span></button></p>
         <p id="sub-status" role="status" aria-live="polite"></p>
@@ -318,7 +318,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
     '← エリアを えらびなおす': '← Choose a different area',
     '宮崎の どこへ 行く? 1日プランを 作ろう': 'Where in <span class="g">Miyazaki</span> will you go?<span class="o"> Make your one-day plan</span>',
     '県北・県央・県南から、行きたい 場所を えらびます。えらぶ 数に 制限は ありません。ただし、旅行の 1日には 時間の 限りが あります。時間が ゆるす かぎり えらんで、プランに しましょう。': 'Choose the places you want to visit from the North, Central, and South areas. There is no limit on how many you choose, but one day of travel has limited time. Pick as many as your time allows and build your plan.',
-    '班の みんなで 相談しながら、1つの プランを 作ります。入力する 人は 代表の 人です。': '<b>As a group</b>, talk together and make one plan. The representative types it in.',
+    '班の みんなで 相談しながら プランを 作ります。入力は、みんなが 自分の スマホで します。': '<b>As a group</b>, talk together and make your plan. Everyone types it in on their own phone.',
     '旅行1日の 時間わく': 'Time for your one-day trip',
     '宮崎空港を 出る': 'Leave Miyazaki Airport',
     'もどる 時刻': 'Back at the airport',
@@ -340,8 +340,8 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
     'そのあと に 行きます。': 'After that, we will go to ' + U('p2') + '.',
     'えらんだ ものを ぜんぶ とり消す': 'Clear all choices',
     'プランに 入れた 場所を、Googleマップに 保存した': 'I saved the places in my plan to Google Maps',
-    'ステップ4': 'Step 4', '先生に 提出しよう': 'Submit to your teacher', '代表の 人が 1回 おす': 'The representative presses once',
-    '代表の 人が、下の ボタンの どちらかを おして、メールを 送ります。': 'The <span class="rep">representative</span> presses one of the buttons below to send an email.',
+    'ステップ4': 'Step 4', '先生に 提出しよう': 'Submit to your teacher', '1人 1回 おす': 'Everyone presses once',
+    'みんなが、下の ボタンの どちらかを おして、メールを 送ります。': '<span class="rep">Everyone</span> presses one of the buttons below to send an email.',
     'メールアプリで 送る': 'Send with email app', 'Gmail(ブラウザ)で ひらく': 'Open in Gmail (browser)',
     '送り先:': 'Send to:', 'コピー': 'Copy',
     'ボタンで ひらかない とき': 'If the buttons do not open',
