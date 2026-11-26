@@ -144,6 +144,11 @@ tr.fixed th { font-family: var(--font-head); color: var(--orange-ink); font-size
 .chip-b.on { border-color: var(--green-ink); background: var(--green-tint); font-weight: 700; }
 .chip-b.dim { color: var(--muted); }
 .chip-b.clear { border-style: dashed; color: var(--muted); }
+.pwrap { display: flex; gap: 4px; align-items: center; }
+.pwrap .f-place { flex: 1; min-width: 0; }
+.pickbtn { font: 700 14px var(--font-body); color: var(--green-ink); background: var(--green-tint); border: 1.5px solid var(--green-ink); border-radius: 8px; padding: 6px 10px; cursor: pointer; white-space: nowrap; min-height: 36px; }
+#rowpick { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; max-height: 50vh; overflow: auto; margin: 0; border-radius: 14px 14px 0 0; box-shadow: 0 -4px 18px rgba(0,0,0,.25); padding: 12px 16px 18px; }
+#rowpick .chip-b.used { color: var(--muted); border-style: dashed; }
 .map { display: flex; align-items: center; gap: 12px; }
 .map input { width: 22px; height: 22px; accent-color: var(--green); flex: none; }
 .submit-box { background: var(--blue-tint); border-radius: 12px; padding: 14px 16px; margin-top: 10px; }
@@ -260,6 +265,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
         </table>
       </div>
       <datalist id="picked"></datalist>
+      <div class="chooser" id="rowpick" hidden><p class="chooser-lead" id="rowpick-lead"></p><div class="chips" id="rowpick-chips"></div></div>
       <div class="row-actions">
         <button class="btn" id="addrow" type="button"><span class="ja">+ 行を ふやす</span><span class="zh" lang="zh-Hant">+ 新增一列</span></button>
         <span class="small"><span class="ja">行は いくつでも ふやせます。昼ごはんも 1行 入れましょう。</span><span class="zh" lang="zh-Hant">可以新增任意列數。午餐也記得填一列。</span></span>
@@ -606,7 +612,7 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
     var tr = document.createElement('tr');
     tr.className = 'stop';
     tr.innerHTML =
-      '<td><input type="text" list="picked" class="f-place" aria-label="どこ" autocomplete="off"><span class="info"></span><span class="warn"></span></td>' +
+      '<td><div class="pwrap"><input type="text" class="f-place" aria-label="どこ" autocomplete="off"><button type="button" class="pickbtn">' + T('▼ えらぶ', '▼ 選擇', '▼ Choose') + '</button></div><span class="info"></span><span class="warn"></span></td>' +
       '<td class="num"><input type="number" min="0" step="5" class="f-move" aria-label="前の 場所からの 移動(分)" inputmode="numeric"><span class="info mvn"></span></td>' +
       '<td class="time arr">–</td>' +
       '<td class="num"><input type="number" min="0" step="5" class="f-stay" aria-label="いる 時間(分)" inputmode="numeric"></td>' +
@@ -662,6 +668,34 @@ code#to-addr, #to-addr { font: 600 14px monospace; background: var(--bg); border
   });
   [startEl, endEl, backMove].forEach(function (el) { el.addEventListener('input', recalc); });
   document.getElementById('addrow').addEventListener('click', function () { addRow(); recalc(); });
+  /* ===== ステップ1で チェックした 場所を すべて タップで えらぶ ===== */
+  var rowPick = document.getElementById('rowpick'), rowChips = document.getElementById('rowpick-chips'), rowLead = document.getElementById('rowpick-lead'), rowTarget = null;
+  function closeRowPick() { rowTarget = null; rowPick.hidden = true; }
+  function openRowPick(tr) {
+    rowTarget = tr;
+    var chk = checkedNames(), used = {};
+    Array.prototype.forEach.call(planEl.querySelectorAll('tr.stop'), function (r) { if (r !== tr) { var c = canon(r.querySelector('.f-place').value); if (c) used[c] = 1; } });
+    var list = [];
+    DATA.forEach(function (a) { a.groups.forEach(function (g) { g.items.forEach(function (it) { if (chk[it.n]) list.push(it); }); }); });
+    var cur = canon(tr.querySelector('.f-place').value);
+    rowLead.textContent = list.length ? T('どこに 行く? えらんで ください(ステップ1で チェックした 場所 全部: ' + list.length + ')', '要去哪裡？請選擇（步驟1勾選的全部地點：' + list.length + '）', 'Where to? Choose (all places you checked in Step 1: ' + list.length + ')') : T('ステップ1で 場所を チェックして ください。自分で 書いても OKです。', '請先在步驟1勾選地點，也可以自己填寫。', 'Please check places in Step 1 first. You can also type your own.');
+    rowChips.innerHTML = list.map(function (it, i) { return '<button type="button" class="chip-b' + (it.n === cur ? ' on' : '') + (used[it.n] ? ' used' : '') + '" data-i="' + i + '">' + esc(nameOf(it)) + (used[it.n] ? ' ✓' : '') + '</button>'; }).join('') + '<button type="button" class="chip-b clear" data-i="-2">' + T('とじる', '關閉', 'Close') + '</button>';
+    rowChips._list = list;
+    rowPick.hidden = false;
+  }
+  rowChips.addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b || !rowTarget) return;
+    var i = +b.getAttribute('data-i');
+    if (i >= 0) {
+      var inp = rowTarget.querySelector('.f-place');
+      inp.value = rowChips._list[i].n;
+      inp.dispatchEvent(new Event('input', { bubbles: true }));
+      inp.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+    closeRowPick();
+  });
+  planEl.addEventListener('click', function (e) { var b = e.target.closest('.pickbtn'); if (b) { var tr = b.closest('tr'); if (rowTarget === tr && !rowPick.hidden) closeRowPick(); else openRowPick(tr); } });
+  planEl.addEventListener('focusin', function (e) { if (e.target.classList.contains('f-place') && !e.target.value.trim() && rowPick.hidden) openRowPick(e.target.closest('tr')); });
   for (var i = 0; i < 6; i++) addRow();
   recalc();
 
